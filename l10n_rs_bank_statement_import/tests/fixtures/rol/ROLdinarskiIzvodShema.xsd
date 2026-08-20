@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="TransakcioniRacunPrivredaIzvod">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Zaglavlje"/>
+        <xs:element maxOccurs="unbounded" ref="Stavke"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Zaglavlje">
+    <xs:complexType>
+      <xs:attribute name="BrojIzvoda" use="required" type="xs:string"/>
+      <xs:attribute name="DatumIzvoda" use="required" type="xs:string"/>
+      <xs:attribute name="DugovniPromet" use="required" type="xs:decimal"/>
+      <xs:attribute name="IzvodID" use="required" type="xs:string"/>
+      <xs:attribute name="KomitentAdresa" use="required" type="xs:string"/>
+      <xs:attribute name="KomitentDinarskoKnjigovodstvo" use="required" type="xs:string"/>
+      <xs:attribute name="KomitentMesto" use="required" type="xs:string"/>
+      <xs:attribute name="KomitentNaziv" use="required" type="xs:string"/>
+      <xs:attribute name="MaticniBroj" use="required" type="xs:string"/>
+      <xs:attribute name="NovoStanje" use="required" type="xs:decimal"/>
+      <xs:attribute name="Partija" use="required" type="xs:string"/>
+      <xs:attribute name="PotrazniPromet" use="required" type="xs:decimal"/>
+      <xs:attribute name="PrethodnoStanje" use="required" type="xs:decimal"/>
+      <xs:attribute name="StanjeObracunateProvizije" use="required" type="xs:string"/>
+      <xs:attribute name="TekstPoruke" use="required" type="xs:string"/>
+      <xs:attribute name="TipRacuna" use="required" type="xs:string"/>
+      <xs:attribute name="VrstaIzvoda" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Stavke">
+    <xs:complexType>
+      <xs:attribute name="BrojRacunaPrimaocaPosiljaoca" use="required" type="xs:string"/>
+      <xs:attribute name="BrojZaReklamaciju" use="required" type="xs:string"/>
+      <xs:attribute name="DatumValute" use="required" type="xs:string"/>
+      <xs:attribute name="Duguje" use="required" type="xs:decimal"/>
+      <xs:attribute name="Mesto" use="required" type="xs:string"/>
+      <xs:attribute name="ModelKorisnika" use="required" type="xs:string"/>
+      <xs:attribute name="ModelZaduzenjaOdobrenja" use="required" type="xs:string"/>
+      <xs:attribute name="NalogKorisnik" use="required" type="xs:string"/>
+      <xs:attribute name="Objasnjenje" use="required" type="xs:string"/>
+      <xs:attribute name="Opis" use="required" type="xs:string"/>
+      <xs:attribute name="Potrazuje" use="required" type="xs:decimal"/>
+      <xs:attribute name="PozivNaBrojKorisnika" use="required" type="xs:string"/>
+      <xs:attribute name="PozivNaBrojZaduzenjaOdobrenja" use="required" type="xs:string"/>
+      <xs:attribute name="Referenca" use="required" type="xs:string"/>
+      <xs:attribute name="SifraPlacanja" use="required" type="xs:string"/>
+      <xs:attribute name="SifraPlacanjaOpis" use="required" type="xs:string"/>
+      <xs:attribute name="VasBrojNaloga" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

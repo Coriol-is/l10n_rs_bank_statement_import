@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SYNTHETIC fixture: built from the Office Banking XML specification
+     (docs/fx_ob_spec.txt) — no real pmtnotification sample was available.
+     Structure mirrors <stmtrs> with notiftype instead of rstype. -->
+<pmtnotification xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <notiftype>ibank.payment.notification.ledger</notiftype>
+  <status>
+    <code>0</code>
+    <severity>INFO</severity>
+  </status>
+  <curdef>RSD</curdef>
+  <acctid>160-0000000015722-52</acctid>
+  <stmtnumber>2</stmtnumber>
+  <ledgerbal>
+    <balamt>10001005.90</balamt>
+    <dtasof>2002-11-26T00:00:00</dtasof>
+  </ledgerbal>
+  <availbal>
+    <balamt>10000905.90</balamt>
+    <dtasof>2002-11-27T00:00:00</dtasof>
+  </availbal>
+  <reservedfunds>0</reservedfunds>
+  <trnlist count="1">
+    <stmttrn>
+      <trntype>ibank.payment.pp3</trntype>
+      <fitid>8700044895999</fitid>
+      <benefit>debit</benefit>
+      <payeeinfo>
+        <name>Dobavljač ćirilica test</name>
+        <city>Niš</city>
+      </payeeinfo>
+      <payeeaccountinfo>
+        <acctid>265-0000000012345-88</acctid>
+        <bankid>265</bankid>
+        <bankname>Raiffeisen banka a.d. Beograd</bankname>
+      </payeeaccountinfo>
+      <dtposted>2002-11-27T00:00:00</dtposted>
+      <trnamt>100</trnamt>
+      <purpose>Plaćanje računa 55/02</purpose>
+      <purposecode>221</purposecode>
+      <curdef>RSD</curdef>
+      <trnplace/>
+      <dtuser>2002-11-27T00:00:00</dtuser>
+      <dtavail>2002-11-27T00:00:00</dtavail>
+      <refmodel>97</refmodel>
+      <refnumber>55-02</refnumber>
+      <payeerefmodel/>
+      <payeerefnumber/>
+      <urgency>0</urgency>
+    </stmttrn>
+  </trnlist>
+</pmtnotification>

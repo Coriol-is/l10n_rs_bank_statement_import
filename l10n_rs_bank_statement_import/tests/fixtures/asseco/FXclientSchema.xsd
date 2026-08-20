@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"> 
+  <xs:element name="acctid"> 
+    <xs:annotation> 
+      <xs:documentation>Broj računa u platnom prometu u formatu 3-13-2</xs:documentation> 
+    </xs:annotation> 
+    <xs:simpleType> 
+      <xs:restriction base="xs:string"> 
+        <xs:pattern value="[0-9]{3}\-[0-9]{13}\-[0-9]{2}"/> 
+      </xs:restriction> 
+    </xs:simpleType> 
+  </xs:element> 
+  <xs:element name="overdraftremaining" type="xs:string"></xs:element> 
+  <xs:element name="directdebit" type="xs:string"></xs:element> 
+  <xs:element name="projectedavail" type="xs:string"></xs:element>
+  <xs:element name="directdebitserved" type="xs:string"></xs:element>  
+  <xs:element name="balamt"> 
+    <xs:annotation> 
+      <xs:documentation>Iznos</xs:documentation> 
+    </xs:annotation> 
+    <xs:simpleType> 
+      <xs:restriction base="xs:decimal"> 
+        <xs:fractionDigits value="2"/> 
+      </xs:restriction> 
+    </xs:simpleType> 
+  </xs:element> 
+  <xs:element name="curdef" type="xs:string"> 
+    <xs:annotation> 
+      <xs:documentation>Oznaka valute prema ISO 4217</xs:documentation> 
+    </xs:annotation> 
+  </xs:element> 
+  <xs:element name="dtasof" type="xs:dateTime"> 
+    <xs:annotation> 
+      <xs:documentation>Datum knjiženja</xs:documentation> 
+    </xs:annotation> 
+  </xs:element> 
+  <xs:element name="stmtrs"> 
+    <xs:complexType> 
+      <xs:sequence> 
+        <xs:element name="rstype"> 
+          <xs:annotation> 
+            <xs:documentation>Tip dokumenta koji je banka poslala komintentu</xs:documentation> 
+		            </xs:annotation> 
+          <xs:simpleType> 
+            <xs:restriction base="xs:string"> 
+              <xs:enumeration value="ibank.payment.stmtrs.ledger"/> 
+            </xs:restriction> 
+          </xs:simpleType> 
+        </xs:element> 
+        <xs:element name="status"> 
+          <xs:annotation> 
+            <xs:documentation>Status odgovora banke</xs:documentation> 
+          </xs:annotation> 
+          <xs:complexType> 
+            <xs:sequence> 
+              <xs:element name="code" type="xs:short"> 
+                <xs:annotation> 
+                  <xs:documentation>Sifra</xs:documentation> 
+                </xs:annotation> 
+              </xs:element> 
+              <xs:element name="severity" type="xs:string"> 
+                <xs:annotation> 
+                  <xs:documentation>Opis</xs:documentation> 
+                </xs:annotation> 
+              </xs:element> 
+            </xs:sequence> 
+          </xs:complexType> 
+        </xs:element> 
+        <xs:element ref="curdef"/> 
+        <xs:element ref="acctid"/> 
+        <xs:element name="stmtnumber" type="xs:nonNegativeInteger"> 
+          <xs:annotation> 
+            <xs:documentation>Broj izvoda</xs:documentation> 
+          </xs:annotation> 
+        </xs:element> 
+        <xs:element name="ledgerbal"> 
+          <xs:annotation> 
+            <xs:documentation>Knjigovodstveno stanje sa kojim je zakljucen prethodni izvod</xs:documentation> 
+          </xs:annotation> 
+          <xs:complexType> 
+            <xs:sequence> 
+              <xs:element ref="balamt"/> 
+              <xs:element ref="dtasof"/> 
+            </xs:sequence> 
+          </xs:complexType> 
+        </xs:element> 
+        <xs:element name="availbal"> 
+          <xs:annotation> 
+            <xs:documentation>Knjigovodstevno stanje sa kojim je zakljucen ovaj izvod</xs:documentation>
+          </xs:annotation> 
+          <xs:complexType> 
+            <xs:sequence> 
+              <xs:element ref="balamt"/> 
+              <xs:element ref="dtasof"/> 
+            </xs:sequence> 
+          </xs:complexType> 
+        </xs:element> 
+        <xs:element name="reservedfunds" type="xs:float"> 
+          <xs:annotation> 
+            <xs:documentation>Sredstva rezervisana za finansijske transakcije</xs:documentation> 
+          </xs:annotation> 
+        </xs:element> 
+        <xs:element name="trnlist"> 
+          <xs:annotation> 
+            <xs:documentation>Lista transakcija ukljucenih u izvod</xs:documentation> 
+          </xs:annotation> 
+          <xs:complexType> 
+		               <xs:sequence> 
+              <xs:element name="stmttrn" maxOccurs="unbounded"> 
+                <xs:complexType> 
+                  <xs:sequence> 
+                    <xs:element name="trntype"> 
+                      <xs:annotation> 
+                        <xs:documentation>Tip transakcije (vrsta instrumenta platnog prometa)</xs:documentation> 
+                      </xs:annotation> 
+                      <xs:simpleType> 
+                        <xs:restriction base="xs:string"> 
+                          <xs:enumeration value="ibank.payment.pp0"/> 
+                          <xs:enumeration value="ibank.payment.pp1"/> 
+                          <xs:enumeration value="ibank.payment.pp2 "/> 
+                          <xs:enumeration value="ibank.payment.pp3"/> 
+                        </xs:restriction> 
+                      </xs:simpleType> 
+                    </xs:element> 
+                    <xs:element name="fitid" type="xs:string"> 
+                      <xs:annotation> 
+                        <xs:documentation>Broj za reklamaciju -  jedinstveni identifikator transakcije koga dodeljuje banka</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="benefit"> 
+                      <xs:annotation> 
+                        <xs:documentation>Oznaka smera knjiženja, credit = odobrenje, debit = zaduzenje</xs:documentation> 
+                      </xs:annotation> 
+                      <xs:simpleType> 
+                        <xs:restriction base="xs:string"> 
+                          <xs:enumeration value="credit"/> 
+                          <xs:enumeration value="debit"/> 
+                        </xs:restriction> 
+                      </xs:simpleType> 
+                    </xs:element> 
+                    <xs:element name="payeeinfo"> 
+                      <xs:annotation> 
+                        <xs:documentation>Informacije o drugoj strani (poveriocu ili duzniku)</xs:documentation> 
+                      </xs:annotation> 
+                      <xs:complexType> 
+                        <xs:sequence> 
+                          <xs:element name="name" type="xs:string"> 
+                            <xs:annotation> 
+                              <xs:documentation>Naziv</xs:documentation> 
+                            </xs:annotation> 
+                          </xs:element> 
+                          <xs:element name="city" type="xs:string"> 
+                            <xs:annotation> 
+                              <xs:documentation>Sediste</xs:documentation>
+                            </xs:annotation> 
+                          </xs:element> 
+                        </xs:sequence> 
+                      </xs:complexType> 
+                    </xs:element> 
+                    <xs:element name="payeeaccountinfo"> 
+                      <xs:annotation> 
+                        <xs:documentation>Informacije o računu druge strane</xs:documentation> 
+                      </xs:annotation> 
+                      <xs:complexType> 
+                        <xs:sequence> 
+                          <xs:element ref="acctid"/> 
+                          <xs:element name="bankid"> 
+                            <xs:annotation> 
+						      <xs:documentation>Jedinstvena oznaka banke u paltnom prometu (vodece tri cifre računa)</xs:documentation> 
+                            </xs:annotation> 
+                            <xs:simpleType> 
+                              <xs:restriction base="xs:short"/> 
+                            </xs:simpleType> 
+                          </xs:element> 
+                          <xs:element name="bankname" type="xs:string"> 
+                            <xs:annotation> 
+                              <xs:documentation>Naziv banke</xs:documentation> 
+                            </xs:annotation> 
+                          </xs:element> 
+                        </xs:sequence> 
+                      </xs:complexType> 
+                    </xs:element> 
+                    <xs:element name="dtposted" type="xs:dateTime"> 
+                      <xs:annotation> 
+                        <xs:documentation>Datum knjiženja transakcije</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="trnamt"> 
+                      <xs:annotation> 
+                        <xs:documentation>Iznos transakcije</xs:documentation> 
+                      </xs:annotation> 
+                      <xs:simpleType> 
+                        <xs:restriction base="xs:decimal"> 
+                          <xs:fractionDigits value="2"/> 
+                        </xs:restriction> 
+                      </xs:simpleType> 
+                    </xs:element> 
+                    <xs:element name="purpose" type="xs:string"> 
+                      <xs:annotation> 
+                        <xs:documentation>Svrha placanja</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="purposecode"> 
+                      <xs:annotation> 
+                        <xs:documentation>Sifra placanja, trocifrena prema sifarniku NBJ</xs:documentation> 
+                      </xs:annotation> 
+                      <xs:simpleType> 
+                        <xs:restriction base="xs:short"/> 
+                      </xs:simpleType> 
+                    </xs:element> 
+                    <xs:element ref="curdef"/> 
+                    <xs:element name="trnplace" type="xs:string"> 
+                      <xs:annotation> 
+                        <xs:documentation>Mesto izvršenja transakcije</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="dtuser" type="xs:dateTime"> 
+                      <xs:annotation> 
+                        <xs:documentation>Datum unosa</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="dtavail" type="xs:dateTime"> 
+                      <xs:annotation> 
+                        <xs:documentation>Datum valute</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="refmodel" type="xs:string"> 
+                      <xs:annotation> 
+                        <xs:documentation>Model poziva na broj</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="refnumber" type="xs:string"> 
+					                        <xs:annotation> 
+                        <xs:documentation>Poziv na broj</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="payeerefmodel" type="xs:string"> 
+                      <xs:annotation> 
+                        <xs:documentation>Model poziva na broj druge strane</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="payeerefnumber" type="xs:string"> 
+                      <xs:annotation> 
+                        <xs:documentation>Poziv na broj druge strane </xs:documentation>
+                      </xs:annotation> 
+                    </xs:element> 
+                    <xs:element name="urgency"> 
+                      <xs:annotation> 
+                        <xs:documentation>Oznaka hitnosti</xs:documentation> 
+                      </xs:annotation> 
+                      <xs:simpleType> 
+                        <xs:restriction base="xs:nonNegativeInteger"> 
+                          <xs:enumeration value="0"/> 
+                          <xs:enumeration value="1"/> 
+                          <xs:enumeration value="2"/> 
+                        </xs:restriction> 
+                      </xs:simpleType> 
+                    </xs:element> 
+                    <xs:element name="fee" type="xs:string" minOccurs="0"> 
+                      <xs:annotation> 
+                        <xs:documentation>Porez</xs:documentation> 
+                      </xs:annotation> 
+                    </xs:element> 
+                  </xs:sequence> 
+                </xs:complexType> 
+              </xs:element> 
+            </xs:sequence> 
+            <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/> 
+          </xs:complexType> 
+        </xs:element> 
+      </xs:sequence> 
+    </xs:complexType> 
+  </xs:element> 
+</xs:schema> 
+ 

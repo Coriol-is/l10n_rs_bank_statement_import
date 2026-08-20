@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<stmtrs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FXclientSchema.xsd"> 
+  <rstype>ibank.payment.stmtrs.ledger</rstype> 
+  <status> 
+    <code>0</code> 
+    <severity>INFO</severity> 
+  </status> 
+  <curdef>DIN</curdef> 
+  <acctid>160-0000000015722-52</acctid> 
+  <stmtnumber>1</stmtnumber> 
+  <ledgerbal> 
+    <balamt>0</balamt> 
+    <dtasof>2002-11-26T00:00:00</dtasof> 
+  </ledgerbal> 
+  <availbal> 
+    <balamt>10001005</balamt> 
+    <dtasof>2002-11-26T00:00:00</dtasof> 
+  </availbal> 
+  <reservedfunds>2463.12</reservedfunds> 
+  <trnlist count="3"> 
+    <stmttrn> 
+      <trntype>ibank.payment.pp0</trntype> 
+      <fitid>4270038436012</fitid> 
+      <benefit>credit</benefit> 
+      <payeeinfo> 
+        <name>Petar Petrovic</name> 
+        <city>Beograd</city> 
+	       </payeeinfo> 
+      <payeeaccountinfo> 
+        <acctid>160-0000000000003-67</acctid> 
+        <bankid>160</bankid> 
+        <bankname>Delta Banka AD Beograd</bankname> 
+      </payeeaccountinfo> 
+      <dtposted>2002-11-05T00:00:00</dtposted> 
+      <trnamt>10000000.90</trnamt> 
+      <purpose>Gotovinska plaćanja-uplate i isplate</purpose> 
+      <purposecode>100</purposecode> 
+      <curdef>DIN</curdef> 
+      <trnplace/> 
+      <dtuser>2002-11-05T00:00:00</dtuser> 
+      <dtavail>2002-11-05T00:00:00</dtavail> 
+      <refmodel/> 
+      <refnumber/> 
+      <payeerefmodel/> 
+      <payeerefnumber>1234</payeerefnumber> 
+      <urgency>0</urgency> 
+    </stmttrn> 
+    <stmttrn> 
+      <trntype>ibank.payment.pp3</trntype> 
+      <fitid>8700044894992</fitid> 
+      <benefit>credit</benefit> 
+      <payeeinfo> 
+        <name>Delta pro ang,</name> 
+        <city>New York</city> 
+      </payeeinfo> 
+      <payeeaccountinfo> 
+        <acctid>160-0000000005081-62</acctid> 
+        <bankid>160</bankid> 
+        <bankname>Delta Banka AD Beograd</bankname> 
+      </payeeaccountinfo> 
+      <dtposted>2002-11-05T00:00:00</dtposted> 
+      <trnamt>1000</trnamt> 
+      <purpose>Promet robe i usluga</purpose> 
+      <purposecode>21</purposecode> 
+      <curdef>DIN</curdef> 
+      <trnplace/> 
+      <dtuser>2002-11-05T00:00:00</dtuser> 
+      <dtavail>2002-11-05T00:00:00</dtavail> 
+      <refmodel/> 
+      <refnumber>05</refnumber> 
+      <payeerefmodel/> 
+      <payeerefnumber>05</payeerefnumber> 
+      <urgency>0</urgency> 
+    </stmttrn> 
+    <stmttrn> 
+      <trntype>ibank.payment.pp3</trntype> 
+      <fitid>8700044895012</fitid> 
+      <benefit>credit</benefit> 
+      <payeeinfo> 
+        <name>Delta pro ang,</name> 
+        <city>New York</city> 
+      </payeeinfo> 
+      <payeeaccountinfo> 
+        <acctid>160-0000000005081-62</acctid> 
+        <bankid>160</bankid> 
+        <bankname>Delta Banka AD Beograd</bankname> 
+      </payeeaccountinfo> 
+      <dtposted>2002-11-05T00:00:00</dtposted> 
+      <trnamt>5</trnamt> 
+            <purpose>Investicije</purpose> 
+      <purposecode>24</purposecode> 
+      <curdef>DIN</curdef> 
+      <trnplace/> 
+      <dtuser>2002-11-05T00:00:00</dtuser> 
+      <dtavail>2002-11-05T00:00:00</dtavail> 
+      <refmodel/> 
+      <refnumber>555</refnumber> 
+      <payeerefmodel/> 
+      <payeerefnumber>555</payeerefnumber> 
+      <urgency>0</urgency> 
+    </stmttrn> 
+  </trnlist> 
+<overdraftremaining>555</overdraftremaining> 
+<directdebitserved>100</directdebitserved> 
+<projectedavail></projectedavail> 
+</stmtrs> 
+ 	  
