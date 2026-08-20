@@ -42,7 +42,10 @@ jobs:
           apt-get update
           apt-get install -y --no-install-recommends git ca-certificates
           git clone --depth 1 --branch 19.0 https://github.com/OCA/bank-statement-import.git /tmp/oca-bank
+          git clone --depth 1 --branch 19.0 https://github.com/OCA/account-reconcile.git /tmp/oca-reconcile
           find /tmp/oca-bank -mindepth 1 -maxdepth 1 -type d -name 'account_*' \
+            -exec ln -s {} /mnt/extra-addons/ \;
+          find /tmp/oca-reconcile -mindepth 1 -maxdepth 1 -type d -name 'account_*' \
             -exec ln -s {} /mnt/extra-addons/ \;
       - name: Run module tests
         run: |
