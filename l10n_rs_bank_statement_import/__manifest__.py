@@ -8,6 +8,7 @@
     "version": "19.0.1.0.0",
     "category": "Accounting",
     "license": "LGPL-3",
+    "images": ["static/description/banner.png"],
     "author": "Coriolis Lab",
     "website": "https://github.com/Coriol-is/l10n-rs-bank-statement-import",
     "support": "odoo@coriol.co",
