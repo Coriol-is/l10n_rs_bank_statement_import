@@ -1,0 +1,2534 @@
+Sadržaj:
+XML SPECIFIKACIJA ................................................................................................................................ 2
+ Struktura XML izvoda u platnom prometu ............................................................................................... 2
+   Primer XML izvoda u platnom prometu ................................................................................................... 5
+   Struktura XML naloga za prenos u platnom prometu ............................................................................... 7
+   Primer XML naloga za prenos u platnom prometu ................................................................................... 9
+   Struktura XML izvoda u deviznom platnom prometu ............................................................................ 11
+   Primer Xml izvoda u devinom platnom prometu .................................................................................... 16
+   Struktura Xml naloga za prenos u deviznom platnom prometu .............................................................. 33
+   Primer Xml naloga za prenos u devinom platnom prometu ................................................................... 36
+TXT SPECIFIKACIJA ............................................................................................................................... 40
+  Nalozi ...................................................................................................................................................... 40
+   Izvodi ...................................................................................................................................................... 41
+EXCEL SPECIFIKACIJA .......................................................................................................................... 44
+  Nalozi ...................................................................................................................................................... 44
+   Izvodi ...................................................................................................................................................... 45
+SAP SPECIFIKACIJA................................................................................................................................ 46
+  Nalozi ...................................................................................................................................................... 46
+   Izvodi ...................................................................................................................................................... 47
+   Običan SAP Format ................................................................................................................................ 48
+   SWIFT SAP Format ................................................................................................................................ 49
+       MT940 Format specifikacija ............................................................................................................... 50
+       6. Polje 61: Linija Izvoda .................................................................................................................... 52
+       7. Polje 86: Informacije za vlasnika računa ........................................................................................ 54
+Multi E-bank format ................................................................................................................................... 56
+ Platni nalozi ............................................................................................................................................ 56
+   Promet i izvodi ........................................................................................................................................ 58
+     Format reda datoteke za izvoz prometa i izvoda ................................................................................. 58
+       Rekapitulacija izvoda .......................................................................................................................... 60
+
+
+
+
+                                                                  Ext/Int//PUBLIC
+OFFICE BANKING
+XML SPECIFIKACIJA
+1. Struktura XML izvoda u platnom prometu
+2. Struktura XML naloga za prenos u platnom prometu
+
+
+Struktura XML izvoda u platnom prometu
+Izvod u platnom prometu sadrži proknjižene (finalno realizovane promene) u okviru jednog radnog dana, kao i stanje
+računa pre i nakon tih promena.
+/stmtrslist ...
+    Element liste izvoda. Agregat koji sadrži jedan ili više izvezenih izvoda
+/root ...
+        Root element info odgovora banke (statement response). Sadrži u sebi elemente zaglavlja i listu
+        transakcija. U zavisnosti kako je izvod dobijen, kao odgovor na zahtev ili kao instant notifikacija
+        root node može biti smtmtrs ili pmtnotification
+
+/root/rstype (minoccurs = 1; maxoccurs = 1) U slučaju kada je izvod dobijen kao odgovr na zahtev tip
+        dokumenta koji je banka poslala komintentu. Izvod je označen tipom
+        ibank.payment.stmtrs.ledger.
+/root/notiftype
+        U slučaju kada je izvod dobijen kao instant notifikacija, tip dokumenta koji je banka poslala
+        komintentu. Izvod je označen tipom
+        ibank.payment.notification.ledger
+/root/status (minoccurs = 1; maxoccurs = 1) agregat
+/root/status/code (minoccurs = 1; maxoccurs = 1)
+        Šifra statusa odgovora banke. Ukoliko je zahtev uspešno obrađen vrednost je 0, u suprotnom
+        vrednost odgovara kodu greške.
+/root/status/severity (minoccurs = 1; maxoccurs = 1)
+        Tip statusa odgovora {INFO, WARN, ERROR}.
+/root/curdef (minoccurs = 1; maxoccurs = 1)
+        Oznaka valute. Za platni promet u zemlji uvek je DIN.
+ /root/acctid (minoccurs = 1; maxoccurs = 1)
+        Broj računa u platnom prometu u formatu b(3)p(13)k(2) gde je: b jedinstveni kod banke u
+        platnom prometu, p partija i k kontrolni broj po modulu 97.
+/root/stmtnumber (minoccurs = 1; maxoccurs = 1)
+        Redni broj izvoda računa u platnom prometu u tekućoj godini.
+/root/ledgerbal (minoccurs = 1; maxoccurs = 1) agregat Knjigovodstveno stanje (balance ammount) sa
+        kojim je zaključen prethodni izvod.
+/root/ledgerbal/balamt (minoccurs = 1; maxoccurs = 1) Iznos se daje sa
+        dva decimalna mesta.
+/root/ledgerbal/dtasof (minoccurs = 1; maxoccurs = 1) Datum knjiženja (date as of) prethodnog izvoda u
+        UTC formatu: (DDDDMMYYYYTHH:MM:SS).
+                                                 Ext/Int//PUBLIC
+/root/availbal (minoccurs = 1; maxoccurs = 1) agregat
+        Knjigovodstveno stanje (balance ammount) kojim je zaključen ovaj izvod.
+/root/availbal/balamt (minoccurs = 1; maxoccurs = 1)
+        Iznos se daje sa dva decimalna mesta.
+/root/availbal/dtasof (minoccurs = 1; maxoccurs = 1)
+        Datum knjiženja (date as of) ovog izvoda u UTC formatu (DDDDMMYYYYTHH:MM:SS).
+/root/reservedfunds (minoccurs = 1; maxoccurs = 1) agregat
+        Sredstva rezervisana za finansijske transakcije.
+/root/overdraftremaining (minoccurs = 1; maxoccurs = 1) aggregation
+        Iznos neiskorišćenih sredstava dozvoljenog okvirnog kredita
+/root/overdraftused (minoccurs = 1; maxoccurs = 1) aggregation
+        Iznos iskorišćenih sredstava dozvoljenog okvirnog kredita
+/root/directdebitreserved (minoccurs = 1; maxoccurs = 1) aggregation
+        Sredstva rezervisana za direktnu napltatu
+/root/projectedavail (minoccurs = 1; maxoccurs = 1) aggregation
+        Projektovano izračunato stanje računa. Opšta formula za obračun je
+        [Projektovano stanje računa] = [Trenutno stanje] + [Iznos neiskorišćenih sredstava dozvoljenog
+        okvirnog kredita] - [Iznos blokada] - [Sredstva rezervisana za finansijske transakcije] - [Sredstva
+        rezervisana za direktnu napltatu]
+        ali se ona može menjati u skladu sa poslovnom politikom banke
+/root/overdraft (minoccurs = 1; maxoccurs = 1) agregat
+/root/overdraft/amount(minoccurs = 1; maxoccurs = 1)
+     Iznos odobrenog okvirnog kredita.
+/root/overdraft/dtasof (minoccurs = 1; maxoccurs = 1)
+     Datum od kada se može koristiti odobreni okvirni kredit.
+/root/overdraft/dtasto (minoccurs = 1; maxoccurs = 1)
+     Datum do kada se može koristiti okvirni kredit.
+/root/trnlist (minoccurs = 1; maxoccurs = 1) agregat
+        Lista transakcija (transaction list) proknjiženih u ovom izvodu.
+/root/stmttrn (minoccurs = 1; maxoccurs = unbounded) agregat
+        Transakcija u platnom prometu (statement transaction). U transakciji su prikazani detalji druge
+        strane, dok se detalji o računu za koji se daje izvod i vlasniku računa ne nalaze u samim
+        transakcijama.
+/root/stmttrn/trntype (minoccurs = 1; maxoccurs = 1) Tip transakcije (transaction type) vrsta
+        instrumenta platnog prometa. Može da ima vrednost iz sledećeg skupa: {ibank.payment.pp0,
+        ibank.payment.pp1, ibank.payment.pp2, ibank.payment.pp3, ibank.payment.pp4}
+/root/stmttrn/fitid (minoccurs = 1; maxoccurs = 1) Broj za reklamaciju (financial institution transaction
+        id) jedinstveni identifikator transakcije (instrumenta) koga dodeljuje banka. Format se razlikuje
+        od banke do banke, ali je vrednost jedinstvena na nivou jedne banke
+/stmtrs/stmttrn/benefit (minoccurs = 1; maxoccurs = 1)
+        Oznaka smera knjiženja, {credit, debit} (odobrenje, zaduzenje)
+/root/stmttrn/payeeinfo (minoccurs = 1; maxoccurs = 1) agregat
+        Informacije o drugoj strani (poveriocu ili duzniku).
+/root/stmttrn/payeeinfo/name (minoccurs = 1; maxoccurs = 1)
+                                            Ext/Int//PUBLIC
+         Naziv druge strane (poverioca ili duznika).
+ /root/stmttrn/payeeinfo/city (minoccurs = 1; maxoccurs = 1)
+         Sedište druge strane (poverioca ili duznika).
+ /root/stmttrn/payeeaccountinfo (minoccurs = 1; maxoccurs = 1) agregat
+         Informacije o računu druge strane.
+/root/stmttrn/payeeaccountinfo/acctid (minoccurs = 1; maxoccurs = 1)
+         Broj računa u platnom prometu u formatu b(3)p(13)k(2) gde je: b jedinstveni kod banke u
+         platnom prometu, p partija i k kontrolni broj po modulu 97.
+/root/stmttrn/payeeaccountinfo/bankid (minoccurs = 1; maxoccurs = 1) Jedinstvena oznaka banke
+         kod koje se vodi račun druge strane (vodeće tri cifre računa).
+/root/stmttrn/payeeaccountinfo/bankname (minoccurs = 1; maxoccurs = 1)
+         Naziv banke kod koje se nalazi račun druge strane.
+ /root/stmttrn/trnamt (minoccurs = 1; maxoccurs = 1)
+         Iznos transakcije (transaction amount). Iznos se daje u apsolutnom iznosu sa dva decimalna
+         mesta.
+ /root/stmttrn/curdef (minoccurs = 1; maxoccurs = 1)
+         Oznaka valute (currency definition) . Za platni promet u zemlji uvek je DIN.
+ /root/stmttrn/purpose (minoccurs = 1; maxoccurs = 1)
+         Svrha plaćanja (purpose). Opis svrhe plaćanja.
+ /root/stmttrn/purposecode (minoccurs = 1; maxoccurs = 1)
+         Šifra plaćanja (purpose code), trocifrena prema šifarniku NBS.
+//root/stmttrn/trnplace (minoccurs = 1; maxoccurs = 1)
+         Mesto izvršenja transakcije.
+/root/stmttrn/dtposted (minoccurs = 1; maxoccurs = 1)
+         Datum knjiženja (date posted) transakcije u UTC formatu (DDDDMMYYYYTHH:MM:SS).
+/root/stmttrn/dtuser (minoccurs = 1; maxoccurs = 1)
+         Datum unosa transakcije u sistem u UTC formatu (DDDDMMYYYYTHH:MM:SS).
+/root/stmttrn/dtavail (minoccurs = 1; maxoccurs = 1)
+         Datum valute u UTC formatu (DDDDMMYYYYTHH:MM:SS).
+/root/stmttrn/refmodel (minoccurs = 1; maxoccurs = 1) Model poziva na broj vlasnika računa za koji se
+         daje izvod. Sadržaj je definisan odgovarajućim uputstvom NBS.
+/root/stmttrn/refnumber (minoccurs = 1; maxoccurs = 1) Poziv na broj vlasnika računa za koji se daje
+         izvod. Sadržaj je definisan odgovarajućim uputstvom NBS.
+/root/stmttrn/payeerefmodel (minoccurs = 1; maxoccurs = 1)
+         Model poziva na broj druge strane.
+ /root/stmttrn/payeerefnumber (minoccurs = 1; maxoccurs = 1)
+         Poziv na broj druge strane.
+/root/stmttrn/urgency (minoccurs = 1; maxoccurs = 1)
+         Oznaka hitnosti. Može da ima vrednost iz sledećeg skupa {ACH, RTGS} gde je: ACH -
+         Neto poravnanje (KLIRING) RTGS Bruto poravnanje u realnom vremenu
+
+
+
+
+                                          Ext/Int//PUBLIC
+Primer XML izvoda u platnom prometu
+<?xml version="1.0" encoding="utf-8"?>
+<stmtrs>
+ <rstype>ibank.payment.stmtrs.ledger</rstype>
+ <status>
+  <code>0</code>
+  <severity>INFO</severity>
+ </status>
+ <curdef>DIN</curdef>
+ <acctid>160-0000000015722-52</acctid>
+ <stmtnumber>1</stmtnumber>
+ <ledgerbal>
+  <balamt>0</balamt>
+  <dtasof>2002-11-26T00:00:00</dtasof>
+ </ledgerbal>
+ <availbal>
+  <balamt>10001005</balamt>
+  <dtasof>2002-11-26T00:00:00</dtasof>
+ </availbal>
+ <reservedfunds>2463.12</reservedfunds>
+ <trnlist count="3">
+  <stmttrn>
+    <trntype>ibank.payment.pp0</trntype>
+    <fitid>4270038436012</fitid>
+    <benefit>credit</benefit>
+    <payeeinfo>
+     <name>Petar Petrovic</name>
+     <city>Beograd</city>
+    </payeeinfo>
+    <payeeaccountinfo>
+     <acctid>160-0000000000003-67</acctid>
+     <bankid>160</bankid>
+     <bankname>Delta Banka AD Beograd</bankname>
+    </payeeaccountinfo>
+    <dtposted>2002-11-05T00:00:00</dtposted>
+    <trnamt>10000000.90</trnamt>
+    <purpose>Gotovinska plaćanja-uplate i isplate</purpose>
+    <purposecode>100</purposecode>
+    <curdef>DIN</curdef>
+    <trnplace/>
+    <dtuser>2002-11-05T00:00:00</dtuser>
+    <dtavail>2002-11-05T00:00:00</dtavail>
+    <refmodel/>
+    <refnumber/>
+                                         Ext/Int//PUBLIC
+ <payeerefmodel/>
+ <payeerefnumber>1234</payeerefnumber>
+ <urgency>0</urgency>
+</stmttrn>
+<stmttrn>
+ <trntype>ibank.payment.pp3</trntype>
+ <fitid>8700044894992</fitid>
+ <benefit>credit</benefit>
+ <payeeinfo>
+  <name>Delta pro ang,</name>
+  <city>New York</city>
+ </payeeinfo>
+ <payeeaccountinfo>
+  <acctid>160-0000000005081-62</acctid>
+  <bankid>160</bankid>
+  <bankname>Delta Banka AD Beograd</bankname>
+ </payeeaccountinfo>
+ <dtposted>2002-11-05T00:00:00</dtposted>
+ <trnamt>1000</trnamt>
+ <purpose>Promet robe i usluga</purpose>
+ <purposecode>21</purposecode>
+ <curdef>DIN</curdef>
+ <trnplace/>
+ <dtuser>2002-11-05T00:00:00</dtuser>
+ <dtavail>2002-11-05T00:00:00</dtavail>
+ <refmodel/>
+ <refnumber>05</refnumber>
+ <payeerefmodel/>
+ <payeerefnumber>05</payeerefnumber>
+ <urgency>0</urgency>
+</stmttrn>
+<stmttrn>
+ <trntype>ibank.payment.pp3</trntype>
+ <fitid>8700044895012</fitid>
+ <benefit>credit</benefit>
+ <payeeinfo>
+  <name>Delta pro ang,</name>
+  <city>New York</city>
+ </payeeinfo>
+ <payeeaccountinfo>
+  <acctid>160-0000000005081-62</acctid>
+  <bankid>160</bankid>
+  <bankname>Delta Banka AD Beograd</bankname>
+ </payeeaccountinfo>
+                                 Ext/Int//PUBLIC
+    <dtposted>2002-11-05T00:00:00</dtposted>
+    <trnamt>5</trnamt>
+    <purpose>Investicije</purpose>
+    <purposecode>24</purposecode>
+    <curdef>DIN</curdef>
+    <trnplace/>
+    <dtuser>2002-11-05T00:00:00</dtuser>
+    <dtavail>2002-11-05T00:00:00</dtavail>
+    <refmodel/>
+    <refnumber>555</refnumber>
+    <payeerefmodel/>
+    <payeerefnumber>555</payeerefnumber>
+    <urgency>0</urgency>
+  </stmttrn>
+ </trnlist>
+ <overdraftremaining>555</overdraftremaining>
+ <directdebitserved>100</directdebitserved>
+ <projectedavail></projectedavail>
+</stmtrs>
+
+
+Struktura XML naloga za prenos u platnom prometu
+Zahtev za izvršenje naloga za prenos može sadržati vise naloga za prenos pri ćemu izvršenje pojedinačnih
+naloga nije međusobno uslovljeno
+./pmtorderrq (minoccurs = 1; maxoccurs = 1) agregat
+Root element zahteva za izvršenje instrumenta u platnom prometu (payment order request). Sadrži
+najmanje jedan instrument platnog prometa.
+/pmtorderrq/pmtorder (minoccurs = 1; maxoccurs = unbounded)
+agregat Nalog za prenos sredstava u platnom prometu (payment order). Sadrži sve informacije predviđene
+uputstvom NBS o instrumentima u platnom prometu.
+/pmtorderrq/pmtorder/companyinfo (minoccurs = 1; maxoccurs = 1)
+agregat Informacije o nalogodavcu.
+../companyinfo/name (minoccurs = 1; maxoccurs = 1)
+Naziv nalogodavca.
+../companyinfo/city (minoccurs = 1; maxoccurs = 1)
+Sedište nalogodavca.
+/pmtorderrq/pmtorder/accountinfo (minoccurs = 1; maxoccurs = 1) agregat
+Informacije o računu nalogodavca koji se zadužuje ovim nalogom za prenos.
+../accountinfo/acctid (minoccurs = 1; maxoccurs = 1) Broj računa nalogodavca u formatu b(3)p(13)k(2)
+gde je: b jedinstveni kod banke u platnom prometu, p partija i k kontrolni broj po modulu 97.
+../accountinfo/bankid (minoccurs = 1; maxoccurs = 1)
+Jedinstvena oznaka banke kod koje se vodi račun nalogodavca (vodeće tri cifre računa).
+../accountinfo/bankname (minoccurs = 1; maxoccurs = 1)
+Naziv banke kod koje se vodi račun nalogodavca.
+                                           Ext/Int//PUBLIC
+/pmtorderrq/pmtorder/payeecompanyinfo (minoccurs = 1; maxoccurs = 1) agregat
+Informacije o poveriocu.
+../payeecompanyinfo/name (minoccurs = 1; maxoccurs = 1)
+Naziv poverioca.
+../payeecompanyinfo/city (minoccurs = 1; maxoccurs = 1)
+Sedište poverioca.
+/pmtorderrq/pmtorder/payeeaccountinfo (minoccurs = 1; maxoccurs = 1) agregat
+Informacije o računu poverioca koji se odobrava ovim nalogom za prenos. ../payeeaccountinfo/acctid
+(minoccurs = 1; maxoccurs = 1)
+Broj računa poverioca u formatu b(3)p(13)k(2) gde je: b jedinstveni kod banke u platnom prometu, p -
+partija i k kontrolni broj po modulu 97.
+../payeeaccountinfo/bankid (minoccurs = 1; maxoccurs = 1)
+Jedinstvena oznaka banke kod koje se vodi račun poverioca (vodeće tri cifre računa).
+../payeeaccountinfo/bankname (minoccurs = 1; maxoccurs = 1)
+Naziv banke kod koje se vodi račun poverioca.
+/pmtorderrq/pmtorder/trnuid (minoccurs = 1; maxoccurs = 1)
+Version 1.0 iBank FX protocol specification Book 3: Domestic Payment System June, 17. 2002. Page
+12
+Jedinstveni identifikator transakcije (instrumenta) u evidenciji nalogodavca (transaction unique
+identifier).
+/pmtorderrq/pmtorder/dtdue (minoccurs = 1; maxoccurs = 1)
+Datum valute u UTC formatu (DDDDMMYYYYTHH:MM:SS).
+/pmtorderrq/pmtorder/trnamt (minoccurs = 1; maxoccurs = 1)
+Iznos transakcije (transaction amount). Iznos se daje u apsolutnom iznosu sa dva decimalna mesta.
+/pmtorderrq/pmtorder/trnplace (minoccurs = 1; maxoccurs = 1)
+Mesto izvršenja transakcije ("online" za transakcije upućene preko servisa elektronskog bankarstva)
+/pmtorderrq/pmtorder/purpose (minoccurs = 1; maxoccurs = 1)
+Svrha plaćanja (purpose). Opis svrhe plaćanja.
+/pmtorderrq/pmtorder/purposecode (minoccurs = 1; maxoccurs = 1)
+Šifra plaćanja (purpose code), trocifrena prema šifarniku NBS.
+/pmtorderrq/pmtorder/curdef (minoccurs = 1; maxoccurs = 1)
+Oznaka valute. Za platni promet u zemlji uvek je DIN.
+/pmtorderrq/pmtorder/refmodel (minoccurs = 1; maxoccurs = 1)
+Model poziva na broj zaduženja. Sadržaj je definisan odgovarajućim uputstvom NBS.
+/pmtorderrq/pmtorder/refnumber (minoccurs = 1; maxoccurs = 1)
+Poziv na broj zaduženja. Sadržaj je definisan odgovarajucim uputstvom NBS.
+/pmtorderrq/pmtorder/payeerefmodel (minoccurs = 1; maxoccurs = 1)
+Model poziva na broj odobrenja. Sadržaj je definisan odgovarajućim uputstvom NBS.
+/pmtorderrq/pmtorder/payeerefnumber (minoccurs = 1; maxoccurs = 1)
+Poziv na broj odobrenja. Sadržaj je definisan odgovarajućim uputstvom NBS.
+/pmtorderrq/pmtorder/urgency (minoccurs = 1; maxoccurs = 1) Oznaka hitnosti. Može da ima vrednost
+iz sledećeg skupa {ACH, RTGS} gde je: ACH Neto poravnanje (KLIRING) RTGS Bruto poravnanje u
+realnom vremenu
+
+
+                                         Ext/Int//PUBLIC
+Primer XML naloga za prenos u platnom prometu
+<?xml version="1.0" encoding="utf-8"?>
+<pmtorderrq count="2">
+ <pmtorder>
+  <companyinfo>
+   <name>Demo Company d.o.o.</name>
+   <city>Beograd</city>
+  </companyinfo>
+  <accountinfo>
+   <acctid>160-0000000015722-52</acctid>
+   <bankid>160</bankid>
+   <bankname>Delta banka A.D.</bankname>
+  </accountinfo>
+  <payeecompanyinfo>
+   <name>Demo firma A.D.</name>
+   <city>Novi Sad</city>
+  </payeecompanyinfo>
+  <payeeaccountinfo>
+   <acctid>225-0000000007940-21</acctid>
+   <bankid>225</bankid>
+   <bankname>Nacionalna stedionica - banka a.d.</bankname>
+  </payeeaccountinfo>
+  <trnuid>20171231</trnuid>
+  <dtdue>2002-11-26T00:00:00</dtdue>
+  <trnamt>1200.50</trnamt>
+  <trnplace>online</trnplace>
+  <purpose>
+   Subvencije, regresi i premije isplata,naplata,prenos i obračun po osnovu subvencija, regresa i
+   premija
+  </purpose>
+  <purposecode>127</purposecode>
+  <curdef>DIN</curdef>
+  <refmodel/>
+  <refnumber>1112121</refnumber>
+  <payeerefmodel/>
+  <payeerefnumber>10</payeerefnumber>
+  <urgency>ACH</urgency>
+ </pmtorder>
+ <pmtorder>
+                                           Ext/Int//PUBLIC
+  <companyinfo>
+   <name>Demo Company d.o.o.</name>
+   <city>Beograd</city>
+  </companyinfo>
+  <accountinfo>
+   <acctid>160-0000000015722-52</acctid>
+   <bankid>160</bankid>
+   <bankname>Delta banka A.D.</bankname>
+  </accountinfo>
+  <payeecompanyinfo>
+   <name>Druga dirma d.o.o</name>
+   <city>Kragujevac</city>
+  </payeecompanyinfo>
+  <payeeaccountinfo>
+   <acctid>330-0000000001570-21</acctid>
+   <bankid>330</bankid>
+   <bankname>Meridian bank a.d.</bankname>
+  </payeeaccountinfo>
+  <trnuid>20171240</trnuid>
+  <dtdue>2002-11-26T00:00:00</dtdue>
+  <trnamt>23000.00</trnamt>
+  <trnplace>online</trnplace>
+  <purpose>Promet usluga i proizvoda</purpose>
+  <purposecode>290</purposecode>
+  <curdef>DIN</curdef>
+  <refmodel/>
+  <refnumber>221121</refnumber>
+  <payeerefmodel/>
+  <payeerefnumber>89291</payeerefnumber>
+  <urgency>RTGS</urgency>
+ </pmtorder>
+</pmtorderrq>
+
+
+
+
+                                       Ext/Int//PUBLIC
+Struktura XML izvoda u deviznom platnom prometu
+Izvod u platnom prometu sadrži proknjižene (finalno realizovane promene) u okviru navedenog perioda,
+stanje računa pre i nakon tih promena i odgovarujuce dokumente.
+/stmtrs ...
+Root element info odgovora banke (statement response). Sadrži u sebi elemente zaglavlja,listu transakcija
+i dokumente.
+/stmtrs/rstype (minoccurs = 1; maxoccurs = 1)
+Tip dokumenta koji je banka poslala komintentu. Izvod je označen tipom
+ibank.fps.stmtrs.statement.
+/stmtrs/status (minoccurs = 1; maxoccurs = 1) agregat
+/stmtrs/status/code (minoccurs = 1; maxoccurs = 1)
+Šifra statusa odgovora banke. Ukoliko je zahtev uspešno obrađen vrednost je 0, u suprotnom vrednost
+odgovara kodu greške.
+/stmtrs/status/severity (minoccurs = 1; maxoccurs = 1) Tip statusa odgovora {INFO, WARNING,
+ERROR}. /stmtrs/status/detail (minoccurs = 1; maxoccurs = 1) Detalji vezani za odgovor
+/stmtrs/curdef (minoccurs = 1; maxoccurs = 1) Oznaka valute. /stmtrs/acctid (minoccurs = 1;
+maxoccurs = 1)
+Broj partije.
+/stmtrs/glacct
+Konto
+/stmtrs/glacctdesc
+Opis konta
+/stmtrs/stmtno (minoccurs = 1; maxoccurs = 1)
+Broj izvoda prtije u tekućoj godini.
+/stmtrs/stmtyear
+Kalendarska godina za koju je izdat izvod
+/stmtrs/branch
+Filijala banke koja je izdala izvod
+/stmtrs/dateasto
+Datum knjiženja izvoda u UTC formatu: (DDDDMMYYYYTHH:MM:SS).
+/stmtrs/stmbal (minoccurs = 1; maxoccurs = 1) agregat
+Knjigovodstveno stanje (balance ammount) sa kojim je zaključen prethodni izvod.
+/stmtrs/stmbal /balamt (minoccurs = 1; maxoccurs = 1) Iznos.
+Daje se sa dva decimalna mesta.
+/stmtrs/stmbal /balamtlcl (minoccurs = 1; maxoccurs = 1) Iznos u lokalnoj valuti.
+Daje se sa dva decimalna mesta.
+/stmtrs/stmbal /dtasof (minoccurs = 1; maxoccurs = 1)
+Datum knjiženja (date as of) prethodnog izvoda u UTC formatu: (DDDDMMYYYYTHH:MM:SS).
+/stmtrs/closing (minoccurs = 1; maxoccurs = 1) agregat
+Knjigovodstveno stanje (balance ammount) kojim je zaključen ovaj izvod. /stmtrs/closing/balamt
+(minoccurs = 1; maxoccurs = 1)
+Iznos se daje sa dva decimalna mesta.
+/stmtrs/closing/balamt lcl (minoccurs = 1; maxoccurs = 1)
+
+                                           Ext/Int//PUBLIC
+Iznos u lokalnoj valuti sa dva decimalna mesta /stmtrs/trnlist (minoccurs = 1; maxoccurs = 1) agregat
+Lista transakcija (transaction list) proknjiženih u ovom izvodu.
+/stmtrs/stmttrn (minoccurs = 1; maxoccurs = unbounded) agregat
+Transakcija u platnom prometu (statement transaction). U transakciji su prikazani detalji druge strane,
+dok se detalji o računu za koji se daje izvod i vlasniku računa ne nalaze u samim transakcijama.
+/stmtrs/stmttrn/trntype (minoccurs = 1; maxoccurs = 1)
+Tip transakcije (transaction type) vrsta instrumenta platnog prometa. Može da ima vrednost iz sledećeg
+skupa: { ibank.fps.document.internalorder (Interni nalog), ibank.fps.document.remittance (nalog za
+naplatu), ibank.fps.document.generalorder (opsti devizni nalog), ibank.fps.document.payment (nalog za
+plaćanje)}
+/stmtrs/stmttrn/trndsc
+Opis transakcije
+/stmtrs/stmttrn/fitid (minoccurs = 1; maxoccurs = 1) Broj za reklamaciju (financial institution
+transaction id) jedinstveni identifikator transakcije (instrumenta) koga dodeljuje banka. Format se
+razlikuje od banke do banke, ali je vrednost jedinstvena na nivou jedne banke
+/stmtrs/stmttrn/documentid
+Broj dokumenta na osnovu koga je kreirana transakcija.
+/stmtrs/stmttrn/trnamt
+Iznos transakcije. Daje se sa dve decimalne cifre
+/stmtrs/stmttrn/trnamtlocal
+Iznos transakcije u lokalnoj valuti. Daje se sa dve decimalne cifre
+/stmtrs/stmttrn/benefit (minoccurs = 1; maxoccurs = 1)
+Oznaka smera knjiženja, {credit, debit} (odobrenje, zaduzenje)
+/stmtrs/stmttrn/dtposted (minoccurs = 1; maxoccurs = 1)
+Datum knjiženja (date posted) transakcije u UTC formatu (DDDDMMYYYYTHH:MM:SS).
+/stmtrs/stmttrn/dtavail (minoccurs = 1; maxoccurs = 1)
+Datum valute u UTC formatu (DDDDMMYYYYTHH:MM:SS). /stmtrs/stmttrn/reference
+//stmtrs/stmttrn/description /stmtrs/documentlist …
+Lista dokumenata na osnovu kojih su genrisane transakcije u ovom izvodu.
+/stmtrs/documentlist/document
+Dokument deviznog platnog prometa.
+/stmtrs/documentlist/document/doctype
+Tip dokumenta. Može da ima vrednost iz sledećeg skupa: {ibank.fps.document.internalorder (Interni
+nalog), ibank.fps.document.remittance (nalog za naplatu), ibank.fps.document.generalorder (opsti devizni
+nalog), ibank.fps.document.payment (nalog za plaćanje)}
+/stmtrs/documentlist/document/instrument /stmtrs/documentlist/document/documentid
+Identifikator dokumenta
+/stmtrs/documentlist/document/refrencenumber
+Identifikator dokumenta na osnovu koga je ovaj genrisan
+/stmtrs/documentlist/document/beneficiary
+Agregat koji sadrži podatke o korisniku
+/stmtrs/documentlist/document/beneficiary/legalid
+Matični broj korisnika
+/stmtrs/documentlist/document/beneficiary/name
+                                           Ext/Int//PUBLIC
+Ime korisnika
+/stmtrs/documentlist/document/beneficiary/address
+Agregat adrese korisnika
+/stmtrs/documentlist/document/beneficiary/address/street
+Ulica i broj korisnika
+/stmtrs/documentlist/document/beneficiary/address/city
+Grad korisnika
+/stmtrs/documentlist/document/beneficiary/address/zip
+Poštanski broj korisnika
+/stmtrs/documentlist/document/beneficiary/accountifo
+Agregat koji sadrži podatke o računu korisnika
+/stmtrs/documentlist/document/beneficiary/accountifo/acctid
+Broj računa korisnika
+/stmtrs/documentlist/document/beneficiary/accountifo/bankinfo
+Agregat podatak o banci za račun korisnika
+/stmtrs/documentlist/document/beneficiary/accountifo/bankinfo/bic
+SWIFT kod banke
+/stmtrs/documentlist/document/beneficiary/accountifo/bankinfo/bankid
+ID banke
+ /stmtrs/documentlist/document/beneficiary/accountifo/bankinfo/bankname
+Naziv banke
+/stmtrs/documentlist/document/beneficiary/accountifo/bankinfo/legalid
+Matični broj banke
+/stmtrs/documentlist/document/beneficiary/accountifo/bankinfo/address
+Agregat adrese banke
+/stmtrs/documentlist/document/beneficiary/accountifo/bankinfo/address/street
+Ulica i broj
+/stmtrs/documentlist/document/beneficiary/accountifo/bankinfo/address/city
+Grad
+/stmtrs/documentlist/document/beneficiary/accountifo/bankinfo/address/zip
+Poštanski broj
+/stmtrs/documentlist/document/orderingparty
+Agregat koji sadrži podatke o nalogodavcu
+/stmtrs/documentlist/document/orderingparty /legalid
+Matični broj nalogodavca
+/stmtrs/documentlist/document/orderingparty /name
+Ime nalogodavca
+/stmtrs/documentlist/document/orderingparty /address
+Agregat adrese nalogodavca
+/stmtrs/documentlist/document/orderingparty /address/street
+Ulica i broj nalogodavca
+/stmtrs/documentlist/document/orderingparty /address/city
+Grad nalogodavca
+/stmtrs/documentlist/document/orderingparty /address/zip
+                                   Ext/Int//PUBLIC
+Poštanski broj nalogodavca
+/stmtrs/documentlist/document/orderingparty /accountifo
+Agregat koji sadrži podatke o računu nalogodavca
+/stmtrs/documentlist/document/orderingparty /accountifo/acctid
+Broj računa nalogodavca
+/stmtrs/documentlist/document/orderingparty /accountifo/bankinfo
+Agregat podatak o banci za račun nalogodavca
+/stmtrs/documentlist/document/orderingparty /accountifo/bankinfo/bic
+SWIFT kod banke
+/stmtrs/documentlist/document/orderingparty/accountifo/bankinfo/bankid
+ID banke
+/stmtrs/documentlist/document/orderingparty/accountifo/bankinfo/bankname
+Naziv banke
+/stmtrs/documentlist/document/orderingparty/accountifo/bankinfo/legalid
+Matični broj banke
+/stmtrs/documentlist/document/orderingparty/accountifo/bankinfo/address
+Agregat adrese banke
+/stmtrs/documentlist/document/orderingparty/accountifo/bankinfo/address/street
+Ulica i broj adrese
+/stmtrs/documentlist/document/orderingparty/accountifo/bankinfo/address/city
+Grad
+/stmtrs/documentlist/document/orderingparty/accountifo/bankinfo/address/zip
+Poštanski broj
+/stmtrs/documentlist/document/viabank
+Agregat koji sadrži podatke o korespodentskoj banci
+/stmtrs/documentlist/document/viabank/bic
+SWIFT kod korespodentske banke
+/stmtrs/documentlist/document/viabank/bankid
+ID banke
+/stmtrs/documentlist/document/viabank/bankname
+Naziv korespodentske banke
+/stmtrs/documentlist/document/viabank/acctid
+Račun banke nalogodavca u korespodentskoj banci
+/stmtrs/documentlist/document/purpose
+Opis svrha plaćanja
+/stmtrs/documentlist/document/purposecode
+Šifra svrhe plaćanja
+/stmtrs/documentlist/document/trnamt
+Iznos plaćanja u naznacenoj valuti sa dve decimale.
+/stmtrs/documentlist/document/curdef
+ISO3 kod valute
+/stmtrs/documentlist/document/currency
+Šifra valute
+/stmtrs/documentlist/document/trnamtlocal
+                                   Ext/Int//PUBLIC
+Iznos plaćanja u lokalnoj valuti sa dve decimale
+/stmtrs/documentlist/document/valuedate
+Datum valute dokumenta.
+/stmtrs/documentlist/document/bookingdate
+Datum knjizenja.
+/stmtrs/documentlist/document/bookingplace
+Mesto knjizenja.
+/stmtrs/documentlist/document/inocharge
+Određuje ko snosi troskove transakcije i moguce vrednosti su {our (nalogodavac),ben
+(korisnik),sha(deljeno)}.
+/stmtrs/documentlist/document/currencyrate
+/stmtrs/documentlist/document/type/stmtrs/documentlist/document/referee
+Agregat koji sadrži podatke o kontaktu u banci
+/stmtrs/documentlist/document/referee/name
+Ime i prezime osobe za kontakt
+/stmtrs/documentlist/document/referee/phone
+Telefon osobe za kontakt
+/stmtrs/documentlist/document/ledgeritems …
+Agregat koji sadrži stavke knjizenja dokumenta
+/stmtrs/documentlist/document/item
+Jedna stavka knjizenja u dokumentu
+/stmtrs/documentlist/document/item/id
+Redni broj stavke
+/stmtrs/documentlist/document/item/ledgeracct
+Konto na koji se odnosi stavka
+/stmtrs/documentlist/document/item/partyid
+Broj partije ne koji se odnosi stavka
+/stmtrs/documentlist/document/item/partyinfo
+Naziv kompanije
+/stmtrs/documentlist/document/item/currency
+Šifra valute
+/stmtrs/documentlist/document/item/curdef
+ISO3 kod valute
+/stmtrs/documentlist/document/item/amt
+Iznos
+/stmtrs/documentlist/document/item/amtlocal
+Iznos u lokalnoj valuti
+/stmtrs/documentlist/document/item/benfit
+Oznaka smera knjiženja, {credit, debit} (odobrenje, zaduzenje)
+/stmtrs/documentlist/document/item/bookingdate
+Datum knjizenja
+/stmtrs/documentlist/document/item/valuedate
+Datum valute
+/stmtrs/documentlist/document/item/legalid
+                                      Ext/Int//PUBLIC
+/stmtrs/documentlist/document/item/purposeid
+Svrha knjizenja
+/stmtrs/documentlist/document/comment
+Komentar vezan za dkument
+/stmtrs/documentlist/document/item/stat
+Agragat koji sadrži listu podataka za statistiku
+/stmtrs/documentlist/document/item/stat/item
+Agregat jednog podataka za statistiku
+/stmtrs/documentlist/document/item/stat/item/@id
+Redni broj podatka za statistiku
+/stmtrs/documentlist/document/item/stat/item/contractno
+Broj ugovora iz kontrolnika
+/stmtrs/documentlist/document/item/stat/item/contractyear
+Godina ugovora iz kontrolnika
+/stmtrs/documentlist/document/item/stat/item/purposecode
+Svrha
+/stmtrs/documentlist/document/item/stat/item/trndesc
+Opis
+/stmtrs/documentlist/document/item/stat/item/amt
+Iznos
+
+
+Primer Xml izvoda u devinom platnom prometu
+<stmtrs>
+ <rstype>ibank.fps.stmtrs.statement</rstype>
+ <status>
+  <code>0</code>
+  <severity>INFO</severity>
+  <detail/>
+ </status>
+ <stmbal>
+  <balamt>4041.35</balamt>
+  <balamtlcl>349277.99</balamtlcl>
+  <runbalamt>4041.35</runbalamt>
+  <runbalamtlcl>349277.99</runbalamtlcl>
+  <dtasof/>
+ </stmbal>
+ <closing>
+  <balamt>7142.53</balamt>
+  <balamtlcl>619673.60</balamtlcl>
+ </closing>
+ <acctid>00¬516¬0000006.7</acctid>
+ <stmtno>2006007</stmtno>
+ <stmtyear>2006</stmtyear>
+                                          Ext/Int//PUBLIC
+<glacct>579840/4</glacct>
+<glacctdesc>
+ Obaveze za devize iz potencijala banke prema drugim komitentima
+</glacctdesc>
+<curdef>EUR</curdef>
+<branch/>
+<dateasto>2006¬01¬20T00:00:00</dateasto>
+<trnlist>
+ <stmttrn>
+   <trntype>ibank.fps.document.internalorder</trntype>
+   <trndsc/>
+   <fitid>03360210444004</fitid>
+   <documentid>2021001234351</documentid>
+   <trnamt>3101.18</trnamt>
+   <trnamtlocal>270395.61</trnamtlocal>
+   <benefit>debit</benefit>
+   <dtposted>2006¬01¬20T07:45:46</dtposted>
+   <dtavail>2006¬01-20T00:00:00</dtavail>
+   <runningloc>619673.60</runningloc>
+   <runningdev>7142.53</runningdev>
+   <reference/>
+   <description/>
+ </stmttrn>
+ <stmttrn>
+   <trntype>ibank.fps.document.internalorder</trntype>
+   <trndsc/>
+   <fitid>03360210444004</fitid>
+   <documentid>2021001234351</documentid>
+   <trnamt>3101.18</trnamt>
+   <trnamtlocal>270395.61</trnamtlocal>
+   <benefit>debit</benefit>
+   <dtposted>2006¬01¬20T07:45:46</dtposted>
+   <dtavail>2006¬01-20T00:00:00</dtavail>
+   <runningloc>619673.60</runningloc>
+   <runningdev>7142.53</runningdev>
+   <reference/>
+   <description/>
+ </stmttrn>
+</trnlist>
+<documentlist>
+ <!-- INTERNAL ORDER -->
+ <document>
+   <doctype>ibank.fps.document.internalorder</doctype>
+   <instrument/>
+                                       Ext/Int//PUBLIC
+<documentid>2021001234351</documentid>
+<refnumber>1450031123615</refnumber>
+<beneficiary>
+ <legalid/>
+ <name/>
+ <address>
+  <street/>
+  <city/>
+  <zip/>
+  <countryid/>
+ </address>
+ <accountinfo>
+  <acctid/>
+  <bankinfo>
+   <bic/>
+   <bankid/>
+   <bankname/>
+   <legalid/>
+   <address>
+     <street/>
+     <city/>
+     <zip/>
+     <countryid/>
+   </address>
+  </bankinfo>
+ </accountinfo>
+</beneficiary>
+<orderingparty>
+ <legalid/>
+ <name/>
+ <address>
+  <street/>
+  <city/>
+  <zip/>
+  <countryid/>
+ </address>
+ <accountinfo>
+  <acctid/>
+  <bankinfo>
+   <bic/>
+   <bankid/>
+   <bankname/>
+   <legalid/>
+   <address>
+                                 Ext/Int//PUBLIC
+     <street/>
+     <city/>
+     <zip/>
+     <countryid/>
+    </address>
+  </bankinfo>
+ </accountinfo>
+</orderingparty>
+<viabank>
+ <bic/>
+ <acctid/>
+ <bankid/>
+ <bankname/>
+</viabank>
+<purpose/>
+<purposecode/>
+<trnamt/>
+<curdef/>
+<currency/>
+<trnamtlocal/>
+<valuedate>2006¬01¬20T00:00:00</valuedate>
+<bookingdate>2006¬01¬20T00:00:00</bookingdate>
+<bookingplace>Beograd</bookingplace>
+<inocharge/>
+<currencyrate/>
+<type/>
+<referee>
+ <name>Snežana Pevac</name>
+ <phone>011/201¬1358</phone>
+</referee>
+<ledgeritems>
+ <item id="1">
+  <ledgeracct>45330/0</ledgeracct>
+  <branchid>0000</branchid>
+  <partyid>0051600000067</partyid>
+  <partyinfo>DELTA OSIGURANJE AD</partyinfo>
+  <currency>978</currency>
+  <curdef>EUR</curdef>
+  <amt>3101.18</amt>
+  <amtlocal>270395.61</amtlocal>
+  <benefit>credit</benefit>
+  <bookingdate>2006¬01-20T00:00:00</bookingdate>
+  <valuedate>2006¬01-20T00:00:00</valuedate>
+  <legalid/>
+                                  Ext/Int//PUBLIC
+    <purposeid/>
+  </item>
+  <item id="2">
+    <ledgeracct>579840/4</ledgeracct>
+    <branchid>0000</branchid>
+    <partyid>0051600000067</partyid>
+    <partyinfo>DELTA OSIGURANJE AD</partyinfo>
+    <currency>978</currency>
+    <curdef>EUR</curdef>
+    <amt>3101.18</amt>
+    <amtlocal>270395.61</amtlocal>
+    <benefit>debit</benefit>
+    <bookingdate>2006¬01-20T00:00:00</bookingdate>
+    <valuedate>2006¬01-20T00:00:00</valuedate>
+    <legalid/>
+    <purposeid/>
+  </item>
+ </ledgeritems>
+ <comment>PRENOS POKRIĆA ZA NALOG 1450031123615</comment>
+ <stat/>
+</document>
+<!-- REMITTANCE -->
+<document>
+ <doctype>ibank.fps.document.remittance</doctype>
+ <instrument>1</instrument>
+ <documentid>0743004006900</documentid>
+ <refnumber>0743-0143728/JJ</refnumber>
+ <beneficiary>
+  <legalid>17198319</legalid>
+  <name>DELTA OSIGURANJE AD</name>
+  <address>
+    <street>MILENTIJA POPOVICA 7B</street>
+    <city>BEOGRAD¬NOVI BEOGRAD</city>
+    <zip/>
+    <countryid/>
+  </address>
+  <accountinfo>
+    <acctid/>
+    <bankinfo>
+     <bic/>
+     <bankid/>
+     <bankname>
+      Delta banka A.D.
+      Beograd
+                              Ext/Int//PUBLIC
+   </bankname>
+   <legalid>07759231</legalid>
+   <address>
+     <street>Milentija Popovica 7</street>
+     <city>Beograd</city>
+     <zip/>
+     <countryid/>
+   </address>
+  </bankinfo>
+ </accountinfo>
+</beneficiary>
+<orderingparty>
+ <legalid/>
+ <name>DELTA OSIGURANJE AD BEOGRAD¬NOVI BEOGRAD</name>
+ <address>
+  <street/>
+  <city/>
+  <zip/>
+  <countryid>826</countryid>
+ </address>
+ <accountinfo>
+  <acctid/>
+  <bankinfo>
+   <bic/>
+   <bankid/>
+   <bankname>
+     DELTA OSIGURANJE AD BEOGRAD¬
+     NOVI BEOGRAD
+   </bankname>
+   <legalid/>
+   <address>
+     <street/>
+     <city/>
+     <zip/>
+     <countryid>891</countryid>
+   </address>
+  </bankinfo>
+ </accountinfo>
+</orderingparty>
+<viabank>
+ <bic>DBDBCSBG</bic>
+ <acctid/>
+ <bankid>3557</bankid>
+ <bankname>BANCA INTESA AD, BEOGRAD</bankname>
+                           Ext/Int//PUBLIC
+</viabank>
+<purpose>POVRACAJ SA SLUŽBENOG PUTA</purpose>
+<purposecode>340</purposecode>
+<trnamt>355.00</trnamt>
+<curdef>EUR</curdef>
+<currency>978</currency>
+<trnamtlocal>30984.36</trnamtlocal>
+<valuedate>2006¬03-17T00:00:00</valuedate>
+<bookingdate>2006¬03¬17T00:00:00</bookingdate>
+<bookingplace>Beograd</bookingplace>
+<inocharge>0</inocharge>
+<currencyrate>87.2799</currencyrate>
+<type>8</type>
+<referee>
+ <name>Jelena Jovic</name>
+ <phone>011/201¬1699</phone>
+</referee>
+<ledgeritems>
+ <item id="1">
+  <ledgeracct>0062/5</ledgeracct>
+  <branchid>00</branchid>
+  <partyid>0050000000067</partyid>
+  <partyinfo>BANCA INTESA AD, BEOGRAD</partyinfo>
+  <currency>978</currency>
+  <curdef>EUR</curdef>
+  <amt/>
+  <amtlocal/>
+  <benefit>debit</benefit>
+  <bookingdate/>
+  <valuedate/>
+  <legalid/>
+  <purposeid/>
+ </item>
+ <item id="2">
+  <ledgeracct>45132/8</ledgeracct>
+  <branchid>00</branchid>
+  <partyid>0051600000067</partyid>
+  <partyinfo>DELTA OSIGURANJE AD</partyinfo>
+  <currency>978</currency>
+  <curdef>EUR</curdef>
+  <amt/>
+  <amtlocal/>
+  <benefit>credit</benefit>
+  <bookingdate/>
+                               Ext/Int//PUBLIC
+   <valuedate/>
+   <legalid/>
+   <purposeid/>
+ </item>
+ <item id="3">
+   <ledgeracct/>
+   <branchid/>
+   <partyid/>
+   <partyinfo>#</partyinfo>
+   <currency/>
+   <curdef/>
+   <amt/>
+   <amtlocal/>
+   <benefit>debit</benefit>
+   <bookingdate/>
+   <valuedate/>
+   <legalid/>
+   <purposeid/>
+ </item>
+ <item id="4">
+   <ledgeracct/>
+   <branchid/>
+   <partyid/>
+   <partyinfo>#</partyinfo>
+   <currency/>
+   <curdef/>
+   <amt/>
+   <amtlocal/>
+   <benefit>credit</benefit>
+   <bookingdate/>
+   <valuedate/>
+   <legalid/>
+   <purposeid/>
+ </item>
+</ledgeritems>
+<comment>Povracaj dela neiskorišcene akontacije za sl. put</comment>
+<stat>
+ <item id="1">
+   <contractno/>
+   <contractyear/>
+   <purposecode>340</purposecode>
+   <trndesc> Sluzbena putovanja u inostranstvo</trndesc>
+   <amt>355.00</amt>
+ </item>
+                                     Ext/Int//PUBLIC
+ </stat>
+</document>
+<!--GENERAL ORDER -->
+<document>
+ <doctype>ibank.fps.document.generalorder</doctype>
+ <instrument/>
+ <documentid>0746001004386</documentid>
+ <refnumber/>
+ <beneficiary>
+  <legalid>07759231</legalid>
+  <name>8. DELTA OSIGURANJE AD ¬DELTA LIFE //0051600000040</name>
+  <address>
+    <street>MILENTIJA POPOVICA 7B</street>
+    <city>BEOGRAD¬NOVI BEOGRAD</city>
+    <zip/>
+    <countryid/>
+  </address>
+  <accountinfo>
+    <acctid/>
+    <bankinfo>
+     <bic/>
+     <bankid/>
+     <bankname>
+      BANCA INTESA AD,
+      BEOGRAD
+     </bankname>
+     <legalid>07759231</legalid>
+     <address>
+      <street>MILENTIJA POPOVICA 7B</street>
+      <city>BEOGRAD¬NOVI BEOGRAD</city>
+      <zip/>
+      <countryid/>
+     </address>
+    </bankinfo>
+  </accountinfo>
+ </beneficiary>
+ <orderingparty>
+  <legalid>07759231</legalid>
+  <name>9. DELTA OSIGURANJE AD ¬DELTA LIFE //0051600000040</name>
+  <address>
+    <street>Milentija Popovica 7</street>
+    <city>Beograd</city>
+    <zip/>
+    <countryid/>
+                               Ext/Int//PUBLIC
+ </address>
+ <accountinfo>
+  <acctid/>
+  <bankinfo>
+    <bic/>
+    <bankid/>
+    <bankname>
+     Delta banka A.D.
+     Beogard
+    </bankname>
+    <legalid>07759231</legalid>
+    <address>
+     <street>Milentija Popovica 7</street>
+     <city>Beograd</city>
+     <zip/>
+     <countryid/>
+    </address>
+  </bankinfo>
+ </accountinfo>
+</orderingparty>
+<viabank>
+ <bic/>
+ <acctid/>
+ <bankid/>
+ <bankname/>
+</viabank>
+<purpose>Prenos sa Life na namenski račun za obveznice</purpose>
+<purposecode/>
+<trnamt/>
+<curdef/>
+<currency/>
+<trnamtlocal/>
+<valuedate>2006-03¬21T00:00:00</valuedate>
+<bookingdate>2006¬03¬21T00:00:00</bookingdate>
+<bookingplace>Beograd</bookingplace>
+<inocharge/>
+<currencyrate/>
+<type/>
+<referee>
+ <name>Zorica Curguz</name>
+ <phone>011/311¬1427</phone>
+</referee>
+<ledgeritems>
+ <item id="8">
+                                     Ext/Int//PUBLIC
+ <ledgeracct>45130/2</ledgeracct>
+ <branchid>00</branchid>
+ <partyid>0051600000040</partyid>
+ <partyinfo>
+   DELTA OSIGURANJE AD ¬DELTA
+   LIFE
+ </partyinfo>
+ <currency>978</currency>
+ <curdef>EUR</curdef>
+ <amt>86773.49</amt>
+ <amtlocal>7572557.60</amtlocal>
+ <benefit>debit</benefit>
+ <bookingdate/>
+ <valuedate/>
+ <legalid>17198319</legalid>
+ <purposeid>0</purposeid>
+</item>
+<item id="9">
+ <ledgeracct>54495/0</ledgeracct>
+ <branchid>00</branchid>
+ <partyid>0051600000040</partyid>
+ <partyinfo>
+   DELTA OSIGURANJE AD ¬DELTA
+   LIFE
+ </partyinfo>
+ <currency>978</currency>
+ <curdef>EUR</curdef>
+ <amt>86773.49</amt>
+ <amtlocal>7572557.60</amtlocal>
+ <benefit>credit</benefit>
+ <bookingdate/>
+ <valuedate/>
+ <legalid>17198319</legalid>
+ <purposeid>0</purposeid>
+</item>
+<item id="10">
+ <ledgeracct/>
+ <branchid/>
+ <partyid/>
+ <partyinfo>#</partyinfo>
+ <currency/>
+ <curdef/>
+ <amt/>
+ <amtlocal/>
+                               Ext/Int//PUBLIC
+ <benefit>debit</benefit>
+ <bookingdate/>
+ <valuedate/>
+ <legalid/>
+ <purposeid/>
+</item>
+<item id="11">
+ <ledgeracct/>
+ <branchid/>
+ <partyid/>
+ <partyinfo>#</partyinfo>
+ <currency/>
+ <curdef/>
+ <amt/>
+ <amtlocal/>
+ <benefit>credit</benefit>
+ <bookingdate/>
+ <valuedate/>
+ <legalid/>
+ <purposeid/>
+</item>
+<item id="12">
+ <ledgeracct/>
+ <branchid/>
+ <partyid/>
+ <partyinfo>#</partyinfo>
+ <currency/>
+ <curdef/>
+ <amt/>
+ <amtlocal/>
+ <benefit>debit</benefit>
+ <bookingdate/>
+ <valuedate/>
+ <legalid/>
+ <purposeid/>
+</item>
+<item id="13">
+ <ledgeracct/>
+ <branchid/>
+ <partyid/>
+ <partyinfo>#</partyinfo>
+ <currency/>
+ <curdef/>
+ <amt/>
+                             Ext/Int//PUBLIC
+    <amtlocal/>
+    <benefit>credit</benefit>
+    <bookingdate/>
+    <valuedate/>
+    <legalid/>
+    <purposeid/>
+  </item>
+  <item id="14">
+    <ledgeracct/>
+    <branchid/>
+    <partyid/>
+    <partyinfo>#</partyinfo>
+    <currency/>
+    <curdef/>
+    <amt/>
+    <amtlocal/>
+    <benefit>debit</benefit>
+    <bookingdate/>
+    <valuedate/>
+    <legalid/>
+    <purposeid/>
+  </item>
+  <item id="15">
+    <ledgeracct/>
+    <branchid/>
+    <partyid/>
+    <partyinfo>#</partyinfo>
+    <currency/>
+    <curdef/>
+    <amt/>
+    <amtlocal/>
+    <benefit>credit</benefit>
+    <bookingdate/>
+    <valuedate/>
+    <legalid/>
+    <purposeid/>
+  </item>
+ </ledgeritems>
+ <comment/>
+ <stat/>
+</document>
+<!--Payment -->
+<document>
+ <doctype>ibank.fps.document.payment</doctype>
+                                    Ext/Int//PUBLIC
+<instrument>1</instrument>
+<documentid>1450031122725</documentid>
+<refnumber>1450031122725</refnumber>
+<beneficiary>
+ <legalid/>
+ <name>OSIGURANJE DEVK</name>
+ <address>
+  <street/>
+  <city/>
+  <zip/>
+  <countryid>276</countryid>
+ </address>
+ <accountinfo>
+  <acctid>DE55370605900003243826</acctid>
+  <bankinfo>
+   <bic>GENODED1SPK</bic>
+   <bankid/>
+   <bankname>
+     SPARDA¬BANK WEST EG,
+     KOELN,
+   </bankname>
+   <legalid/>
+   <address>
+     <street/>
+     <city/>
+     <zip/>
+     <countryid>276</countryid>
+   </address>
+  </bankinfo>
+ </accountinfo>
+</beneficiary>
+<orderingparty>
+ <legalid>17198319</legalid>
+ <name>DELTA OSIGURANJE AD</name>
+ <address>
+  <street>MILENTIJA POPOVIĆA 7B</street>
+  <city>BEOGRAD¬NOVI BEOGRAD</city>
+  <zip/>
+  <countryid>891</countryid>
+ </address>
+ <accountinfo>
+  <acctid>0051600000067</acctid>
+  <bankinfo>
+   <bic>BDBDCSBG</bic>
+                                 Ext/Int//PUBLIC
+    <bankid/>
+    <bankname>
+     Delta Banka A.D.
+     Beograd
+    </bankname>
+    <legalid>07759231</legalid>
+    <address>
+     <street>Milentija Popovica 7</street>
+     <city>Beograd</city>
+     <zip/>
+     <countryid/>
+    </address>
+  </bankinfo>
+ </accountinfo>
+</orderingparty>
+<viabank>
+ <bic>AEIBDEFX</bic>
+ <acctid>00¬531¬0000014.4</acctid>
+ <bankid>168734</bankid>
+ <bankname>AMERICAN EXPRESS BANK GMBH</bankname>
+</viabank>
+<purpose/>
+<purposecode/>
+<trnamt>4532.73</trnamt>
+<curdef>EUR</curdef>
+<currency>978</currency>
+<trnamtlocal>393889.70</trnamtlocal>
+<valuedate>2006¬01¬16T00:00:00</valuedate>
+<bookingdate>2006¬01¬16T00:00:00</bookingdate>
+<bookingplace>Beograd</bookingplace>
+<inocharge>SHA</inocharge>
+<currencyrate>86.899</currencyrate>
+<type>1</type>
+<referee>
+ <name>Snežana Pevac</name>
+ <phone>011/201¬1358</phone>
+</referee>
+<ledgeritems>
+ <item id="1">
+  <ledgeracct>45330/0</ledgeracct>
+  <branchid>00</branchid>
+  <partyid>0051600000067</partyid>
+  <partyinfo>DELTA OSIGURANJE AD</partyinfo>
+  <currency/>
+                            Ext/Int//PUBLIC
+ <curdef/>
+ <amt/>
+ <amtlocal/>
+ <benefit>debit</benefit>
+ <bookingdate/>
+ <valuedate/>
+ <legalid/>
+ <purposeid/>
+</item>
+<item id="2">
+ <ledgeracct>00500/4</ledgeracct>
+ <branchid>00</branchid>
+ <partyid>0053100000144</partyid>
+ <partyinfo>AMERICAN EXPRESS BANK GMBH</partyinfo>
+ <currency/>
+ <curdef/>
+ <amt/>
+ <amtlocal/>
+ <benefit>credit</benefit>
+ <bookingdate/>
+ <valuedate/>
+ <legalid/>
+ <purposeid/>
+</item>
+<item id="3">
+ <ledgeracct/>
+ <branchid/>
+ <partyid/>
+ <partyinfo>#</partyinfo>
+ <currency/>
+ <curdef/>
+ <amt/>
+ <amtlocal/>
+ <benefit>debit</benefit>
+ <bookingdate/>
+ <valuedate/>
+ <legalid/>
+ <purposeid/>
+</item>
+<item id="4">
+ <ledgeracct/>
+ <branchid/>
+ <partyid/>
+ <partyinfo>#</partyinfo>
+                             Ext/Int//PUBLIC
+       <currency/>
+       <curdef/>
+       <amt/>
+       <amtlocal/>
+       <benefit>credit</benefit>
+       <bookingdate/>
+       <valuedate/>
+       <legalid/>
+       <purposeid/>
+     </item>
+    </ledgeritems>
+    <comment>Plaćanje prema inostranstvu</comment>
+    <stat>
+     <item id="1">
+       <contractno>3</contractno>
+       <contractyear>2006</contractyear>
+       <purposecode>260</purposecode>
+       <trndesc>/INV/AO¬887-2005</trndesc>
+       <amt>4532.73</amt>
+     </item>
+    </stat>
+  </document>
+ </documentlist>
+</stmtrs>
+
+
+
+
+                                      Ext/Int//PUBLIC
+Struktura Xml naloga za prenos u deviznom platnom prometu
+/fpspmtorderrq... Root element zahteva za plaćanje u deviznom platnom prometu
+/fpspmtorderrq/fpspmtorder (minoccurs = 1; maxoccurs = 1) Zahtev za plaćanje koji se sastoji od
+podataka o nalogu, podataka o pokriću, podataka za statistiku
+/fpspmtorderrq/orderinfo
+Agregat podataka o nalogu
+/fpspmtorderrq/orderinfo/beneficiary
+Agregat podataka o korisniku
+/fpspmtorderrq/orderinfo/beneficiary/chgs
+Oznaka nosioca troškova. Dozvoljene su sledec vrednosti (0 - nalogodavac, 1 - krajnji korisnik, 2 -
+korisnik, 3 - deljeni)
+/fpspmtorderrq/orderinfo/beneficiary/legalid
+Matični broj korisnika
+/fpspmtorderrq/orderinfo/beneficiary/name
+Naziv korisnika
+/fpspmtorderrq/orderinfo/beneficiary/address
+Agregat adrese korisnika
+/fpspmtorderrq/orderinfo/beneficiary/address/street
+Ulica i broj korisnika
+/fpspmtorderrq/orderinfo/beneficiary/address/city
+Mesto korisnika
+/fpspmtorderrq/orderinfo/beneficiary/address/zip
+Poštanski broj korisnika
+/fpspmtorderrq/orderinfo/beneficiary/address/country
+Agregat države korisnika
+/fpspmtorderrq/orderinfo/beneficiary/address/country/id
+Šifra države korisnika
+/fpspmtorderrq/orderinfo/beneficiary/address/country/name
+Naziv države korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo
+Agregat podataka o računu korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/acctid
+Broj računa korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo
+Agregat podataka o banci u kojoj se nalazi račun korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/bic
+SWIFT kod banke
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/cod
+IBAN računa korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/bankname
+Naziv banke korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/address
+Agregat adrese banke korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/address/street
+                                          Ext/Int//PUBLIC
+Ulica i broj banke korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/address/city
+Mesto banke korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/address/zip
+Poštanski broj banke korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/address/country
+Agregat države banke korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/address/country/id
+Šifra države banke korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/address/country/name
+Naziv države banke korisnika
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viaacctid
+Račun banke u korespodentskoj banci
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viabank
+Agregat podataka o korespodentskoj banci
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viabank/bic
+SWIFT kod korespodentske banke
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viabank/bankname
+Naziv korespodentske banke
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viabank/address
+Agregat adrese korespodentske banke
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viabank/address/city
+Mesto korespodentske banke
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viabank/address/street
+Ulica i broj korespodentske banke
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viabank/address/country
+Agregat države korespodentske banke
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viabank/address/country/id
+Šifra države korespodentske banke
+/fpspmtorderrq/orderinfo/beneficiary/accountinfo/bankinfo/viabank/address/country/nam
+e
+Naziv države korespodentske banke
+/fpspmtorderrq/orderinfo/orederingparty
+Agregat podataka o nalogodavcu
+/fpspmtorderrq/orderinfo/orederingparty/legalid
+Matični broj nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty/name
+Naziv nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty/address
+Agregat adrese nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty/address/street
+Ulica i broj nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty/address/city
+Mesto nalogodavca
+                                   Ext/Int//PUBLIC
+/fpspmtorderrq/orderinfo/orederingparty/address/zip
+Poštanski broj nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty/address/country
+Agregat države nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty/address/country/id
+Šifra države nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty/address/country/name
+Naziv države nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty/accountinfo
+Agregat podataka o računu nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty/accountinfo/acctid
+Broj računa (partija)
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo
+Agregat podataka o banci u kojoj se nalazi račun nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/bic
+SWIFT kod banke
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/cod
+IBAN nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/bankname
+Naziv banke nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/address
+Agregat adrese banke nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/address/street
+Ulica i broj banke nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/address/city
+Mesto banke nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/address/zip
+Poštanski broj banke nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/address/country
+Agregat države banke nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/address/country/id
+Šifra države banke nalogodavca
+/fpspmtorderrq/orderinfo/orederingparty /accountinfo/bankinfo/address/country/name
+Naziv države banke nalogodavca
+/fpspmtorderrq/orderinfo/trnuid
+Jedinstveni identifikator transakcije u formi GUID (primer: FFDACA5E7528401998E3BC7C52097493)
+/fpspmtorderrq/orderinfo/trnamt
+Iznos transakcije izrazen sa dve decimale
+/fpspmtorderrq/orderinfo/curedef
+Valuta transakcije
+/fpspmtorderrq/orderinfo/trnamtlocal
+Iznos transakcije u loklanoj valuti izrazen sa dve decimale
+/fpspmtorderrq/orderinfo/valuedate
+Datum valute transakcije
+                                      Ext/Int//PUBLIC
+/fpspmtorderrq/orderinfo/submissiondate
+Datum slanja zahteva banci
+/fpspmtorderrq/orderinfo/swiftcopy
+Agregat podataka o kopiji SWIFTa
+/fpspmtorderrq/orderinfo/swiftcopy/send
+Dostava kopije swift nalogodavcu. Može imati sledeće vrednosti {0ne, 1da}
+/fpspmtorderrq/orderinfo/swiftcopy/contactperson
+Ime i prezime osobe za kontakt za dostavu kopije SWIFT
+/fpspmtorderrq/orderinfo/swiftcopy/phone
+Telefon osobe za kontakt za dostavu kopije SWIFT
+/fpspmtorderrq/orderinfo/swiftcopy/fax
+Fax osobe za kontakt za dostavu kopije SWIFT
+/fpspmtorderrq/orderinfo/swiftcopy/email
+Email adresa osobe za kontakt za dostavu kopije SWIFT
+/fpspmtorderrq/orderinfo/notes
+Napomene vezane za nalog za plaćanje
+/fpspmtorderrq/orderinfo/stat
+Agregat liste podataka za statistiku
+/fpspmtorderrq/orderinfo/stat/item
+Agregat podatka za statistiku
+/fpspmtorderrq/orderinfo/stat/item/@id
+Redni broj podatka za statistiku
+/fpspmtorderrq/orderinfo/stat/item/contractno
+/fpspmtorderrq/orderinfo/stat /advancedpaymentindicator
+Podebna oznaka {0,1,2}
+0 – Nije avansno plaćanje 1 – Avansno plaćanje do 180 dana 2 – Plaćanje drugom nerezidentu (Cesija)
+Broj ugovora iz kontrolnika
+/fpspmtorderrq/orderinfo/stat/item/contractyear
+Godina ugovora iz kontrolnika
+/fpspmtorderrq/orderinfo/stat/item/trndesc
+Opis
+/fpspmtorderrq/orderinfo/stat/item/purposecode
+Šifra svrhe
+/fpspmtorderrq/orderinfo/stat/item/purposedesc
+Opis
+/fpspmtorderrq/orderinfo/stat/item/amt
+Iznos
+
+Primer Xml naloga za prenos u devinom platnom prometu
+<fpspmtorderrq>
+ <fpspmtorder>
+  <orderinfo>
+   <beneficiary>
+    <chgs>3</chgs>
+                                          Ext/Int//PUBLIC
+<legalid> </legalid>
+<name>Naziv korisnika</name>
+<address>
+ <street>Adresa korisnika</street>
+ <city>Grad korisnika</city>
+ <zip> </zip>
+ <country>
+  <id>004</id>
+  <name>AVGANISTAN (AF)</name>
+ </country>
+</address>
+<accountinfo>
+ <acctid>123123123</acctid>
+ <bankinfo>
+  <bic>SWIFT</bic>
+  <cod>korespodentska</cod>
+  <bankid> </bankid>
+  <bankname>Naziv banke korisnika</bankname>
+  <address>
+   <street>Adresa banke</street>
+   <city>Grad banke</city>
+   <country>
+     <id>732</id>
+     <name>ZAPADNA SAHARA (EH)</name>
+   </country>
+  </address>
+  <viaacctid>Corresponding account</viaacctid>
+  <viabank>
+   <bic>Swift kod kor. banke</bic>
+   <cod>pojma nemam</cod>
+   <bankname>
+     Naziv kor.
+     banke
+   </bankname>
+   <address>
+     <street>
+      Adresa kor.
+      banke
+     </street>
+     <city>Grad kor. banke</city>
+     <country>
+      <id>396</id>
+      <name>DžONSTON OSTRVO (JT)</name>
+     </country>
+                                  Ext/Int//PUBLIC
+     </address>
+    </viabank>
+  </bankinfo>
+ </accountinfo>
+</beneficiary>
+<orderingparty>
+ <legalid>07432461</legalid>
+ <name>Pexim SC</name>
+ <address>
+  <street>Palmira Toljatija 5</street>
+  <city>Novi Beograd</city>
+  <zip> </zip>
+  <country>
+    <id> </id>
+    <name> </name>
+  </country>
+ </address>
+ <accountinfo>
+  <acctid>330-0470500429700-46</acctid>
+  <bankinfo>
+    <bic>MEBACS22</bic>
+    <bankid>meridian.banka@ibank</bankid>
+    <bankname>CA Meridian Bank</bankname>
+    <address>
+     <street>Futoski put 42a</street>
+     <city>Novi Sad</city>
+     <country>
+      <id>891</id>
+      <name>SRBIJA I CRNA GORA</name>
+     </country>
+    </address>
+  </bankinfo>
+ </accountinfo>
+</orderingparty>
+<trnuid>FFDACA5E¬7528¬4019¬98E3¬BC7C52097493</trnuid>
+<instrument>0</instrument>
+<trnamt>1</trnamt>
+<curdef>EUR</curdef>
+<trnamtlocal>0</trnamtlocal>
+<valuedate>19-06-2006</valuedate>
+<submitiondate>19-06-2006</submitiondate>
+<swiftcopy send="0">
+ <contactperson> </contactperson>
+ <phone> </phone>
+                               Ext/Int//PUBLIC
+     <fax> </fax>
+     <email> </email>
+    </swiftcopy>
+    <notes> </notes>
+  </orderinfo>
+  <documents>
+    <item id="1">
+     <doctype/>
+     <refnumber/>
+     <count/>
+     <description/>
+    </item>
+  </documents>
+  <cover>
+    <item id="1">
+     <glacctid> </glacctid>
+     <curdef> </curdef>
+     <amt> </amt>
+     <convertedamt> </convertedamt>
+     <description>opis</description>
+    </item>
+  </cover>
+  <stat>
+    <item id="1">
+     <contractno>2</contractno>
+     <contractyear>2005</contractyear>
+     <trndesc>detalji podatka za statistiku</trndesc>
+     <purposecode>116</purposecode>
+     <purposedesc>Poslovi posredovanja-plaćanja</purposedesc>
+     <amt>1.00</amt>
+    </item>
+    <loanid>1</loanid>
+    <loanyear>2004</loanyear>
+    <advancedpaymentindicator>2</advancedpaymentindicator>
+  </stat>
+ </fpspmtorder>
+</fpspmtorderrq>
+
+
+
+
+                                        Ext/Int//PUBLIC
+TXT SPECIFIKACIJA
+Nalozi
+•          podaci su u ASCII (txt) DOS formatu
+•          slogovi su dužine 180 karaktera
+•          podaci se sadrže od dva tipa slogova:
+      •    Vodeći slog, jedan za svaki paket podataka, tip 9
+      •     Detaljni, za svaki nalog, tip – 1
+
+VODEĆI SLOG NALOGA
+
+OD        DO   DUZ     TIP     OPIS                            KOMENTAR
+                               RAČUN
+1         18   18      N       NALOGODAVCA
+                               NAZIV
+19        53   35      A       NALOGODAVCA
+                               MESTO
+54        73   20      A       NALOGODAVCA
+                                                               13 CELIH, 2 DEC. BEZ
+74        88   15      N       UKUPAN IZNOS                    SEPARATORA
+89        93   5       N       BROJ NALOGA
+                               SLOVNA ŠIFRA
+94        96   3       A       VALUTE                          DINAR = YUM
+                                                               IME I PREZIME ILI
+97        123 27       A       KONTAKT OSOBA                   RAD.MESTO
+124       134 11       A       TELEFON 1
+135       145 11       A       TELEFON 2
+146       156 11       A       FAX
+157       178 22       A       E-MAIL ADRESA
+179       179 1        N       POREKLO                         SADRŽAJ 3
+180       180 1        N       TIP SLOGA                       SADRŽAJ 9
+
+
+
+DETALJAN SLOG NALOGA
+
+OD        DO   DUZ     TIP     OPIS                            KOMENTAR
+1         18   18      N       RAČUN PRIMAOCA
+                                              Ext/Int//PUBLIC
+19        53      35      A       NAZIV PRIMAOCA
+54        73      20      A       MESTO PRIMAOCA
+74        74      1       A       NAČIN IZVRŠENJA              H – HITNO, ' ' – OBIČNO
+                                                               ZAKON JOS
+                                  MODEL POZIVA NA              DOZVOLJAVA
+75        76      2       N,A     ZADUŽENJA                    PRAZNO
+                                                               ZAKON JOŠ
+                                  POZIV NA BROJ                DOZVOLJAVA
+77        96      20      N,A     ZADUŽENJA                    PRAZNO
+97        99      3       N       ŠIFRA PLAĆANJA
+100       134 35          A       SVRHA DOZNAKE
+                                                               11 CELIH , 2 DEC. BEZ
+135       147 13          N       IZNOS                        SEPARATORA
+                                                               ZAKON JOŠ
+                                  MODEL POZIVA NA              DOZVOLJAVA
+148       149 2           N,A     BROJ ODOBRENJA               PRAZNO
+                                                               ZAKON JOŠ
+                                  POZIV NA BROJ                DOZVOLJAVA
+150       169 20          N,A     ODOBRENJA                    PRAZNO
+170       177 8           N       DATUM VALUTE                 DDMMGGGG
+178       178 1           A       PRAZNO
+179       179 1           N       POREKLO                      SADRŽAJ 3
+180       180 1           N       TIP SLOGA                    SADRŽAJ 1
+
+
+
+
+Izvodi
+•             Podaci su u ASCII (txt) formatu
+•             slogovi su dužine 180 karaktera
+•             podaci se sadrže od dva tipa slogova:
+      •        Vodeći slog, jedan za svaki paket podataka, tip 9
+      •        Detaljni, za svaki nalog, tip – 1
+
+VODEĆI SLOG IZVODA
+
+OD        DO      DUZ     TIP     OPIS                         KOMENTAR
+                                  DATUM IZRADE
+1         8       8       N       IZVODA                       DDMMGGGG
+                                                  Ext/Int//PUBLIC
+                        VREME IZRADE
+9     12    4     N     IZVODA               HHMM
+13    30    18    N     RAČUN
+31    33    3     A     OZNAKA VALUTE
+                                             15 CELIH, 2
+34    51    18    N     STARI SALDO          DECIMALNA, ZNAK
+                        DNEVNI PROMET        15 CELIH, 2
+52    69    18    N     DUGUJE               DECIMALNA, ZNAK
+                        DNEVNI PROMET        15 CELIH, 2
+70    87    18    N     POTRAŽUJE            DECIMALNA, ZNAK
+                                             15 CELIH, 2
+88    105   18    N     NOVI SALDO           DECIMALNA, ZNAK
+106   141   36    A     PRAZNO
+142   147   6     N     OJ BANKE
+148   150   3     N     REDNI BROJ IZVODA
+151   185   35    A     NAZIV RACUNA
+186   205   20    A     MESTO
+206   214   9     N     PORESKI BROJ
+215   219   5     A     PRAZNO               ''
+220   220   1     N     TIP SLOGA            1
+
+
+DETALJAN SLOG IZVODA
+
+
+OD    DO    DUZ   TIP   OPIS                 KOMENTAR
+1     18    18    N     RAČUN
+19    53    35    A     NAZIV PRIMAOCA
+54    73    20    A     MESTO PRIMAOCA
+74    74    1     A     NAČIN IZVRŠENJA      'H' ILI ' '
+75    76    2     A,N   MODEL ZADUŽENJA
+                        POZIV NA BROJ
+77    96 20       A,N   ZADUŽENJA
+97    99 3        N     SIFRA PLAĆANJA
+100   134 35      A     SVRHA PLAĆANJA
+                                             11 CELIH, 2
+135   147 13      N     IZNOS                DECIMALNA
+148   148 1       A     DUGUJE/POTRAŽUJE     'D' ILI 'P'
+                        BROJ RACUNA
+149   166 18      N     PRIMAOCA
+                        MODEL POZIVA NA
+167   168 2       N,A   BROJ
+169   188 20      N,A   POZIV NA BROJ
+                                  Ext/Int//PUBLIC
+189   196 8         N       DATUM VALUTE
+                            VREME IZVRŠENJA
+197   200   4       N       NALOGA              HHMM
+201   214   14      N       REKLAMACIJA 1
+215   215   1       N       REKLAMACIJA 2
+216   219   4       A       PRAZNO              ''
+220   220   1       N       TIP SLOGA           2
+
+
+Sort detaljnih slogova je
+     duguje /potražuje
+     šifra plaćanja
+
+
+
+
+                                     Ext/Int//PUBLIC
+EXCEL SPECIFIKACIJA
+Nalozi
+Redni
+broj     Naziv                          TIP   DUŽ      Primer podatka           *
+kolone
+1        Type                           A     50       ibank.payment.pp3        Y
+2        ID                             A     50                                N
+                                                       2003-10-
+3        Date due                       D              03T00:00:00.000          Y
+                                                       Jedna od vrednosti
+4        Urgency                        A     4        ACH,RTGS,INT             Y
+5        Company name                   A     50       Pexim                    N
+6        Company city                   A     50       Novi Beograd             N
+7        Account ID                     A     50       210-0000000003484-43     Y
+8        Account Bank ID                A     50       continental.banka@ibank N
+9        Account bank name              A     50       Continental Banka        N
+10       Reference model                A     2        97                       O
+11       Reference number               A     30                                O
+12       Other compny name              A     50       Other Company            Y
+13       Other company city             A     50       Beograd                  Y
+14       Other acccount ID              A     20       210-000000001111-44      Y
+15       Other acccount bank ID         A     20       continental.banka@ibank N
+16       Other acccount bank name       A     50       Continental Banka        N
+17       Other referrence model         A     2        21                       O
+18       Other reference number         A     30                                O
+19       Amount                         N     20       23,145.50                Y
+20       Currency                       A     3        DIN                      Y
+                                                       Promet robe i usluga -
+21       Purpose description            A     200      finalna potrošnja        Y
+22       Purpose code                   A     3        321                      Y
+
+* Popunjavanje prilikom importa (Y-Obavezno, N-Ne popunjava se, O – Opciono)
+
+
+                                     Ext/Int//PUBLIC
+Izvodi
+VODEĆI SLOG IZVODA (REDOVI 13)
+
+Redni
+broj     Naziv                                 TIP   DUŽ       Primer podatka
+kolone
+1        Broj računa                           A   50          210-0000000001111-11
+2        Broj izvoda                           A   50          11
+3        Datum knjiženja                       D               22.09.2003.
+4        Početno stanje                        N               6198,05
+4,5      Ukupan promet                         AGR
+4        Duguje                                N               1,21
+6        Potražuje                             N               1,21
+7        Novo stanje                           N               6198,05
+8        Broj naloga                           N               2
+         Rezervisana sredstva za porez na
+9                                              N               0
+         finansijske transakcije
+
+
+DETALJAN SLOG IZVODA (REDOVI 4n)
+
+Redni
+broj     Naziv                                 TIP   DUŽ       Primer podatka
+kolone
+1        Redni broj                            N   N           1,2,3...
+2        Vrsta promene                         A   50          ibank.payment.pp3
+3..5     Podaci o dužniku (poveriocu)          AGR
+                                                               Pexim SC, PALMIRA TOLJATIJA 5/5,
+3        Naziv                                 A     50
+                                                               Novi Beograd
+4        Broj računa                           A     50        210-0000004020340-55
+5        Banka                                 A     50        Continental Banka
+6,7      Iznos promene                         AGR
+6        Duguje                                N               1,21
+7        Potražuje                             N               0,00
+8        Šifra plaćanja                        A     3         321
+9        Svrha plaćanja                        A     200       Promet robe i usluga -finalna potrošnja
+10       Poziv na broj dužnika i poverioca     A     100       (97)(321231)
+11       Broj za reklamaciju                   A     30        87000028762301
+
+
+
+
+                                             Ext/Int//PUBLIC
+SAP SPECIFIKACIJA
+Nalozi
+•      podaci su u ASCII (txt) DOS formatu
+•      slogovi su dužine 180 karaktera
+•      podaci se sadrže od tri tipa slogova:
+           o Vodeći slog, jedan za svaki paket podataka;
+           o Drugi slog, jedan za svaki paket podataka;
+           o Detaljni, za svaki nalog.
+
+VODEĆI SLOG NALOGA
+
+OD    DO    DUZ   TIP     OPIS                       KOMENTAR
+                          RAČUN
+1     18    18    N
+                          NALOGODAVCA
+                          NAZIV
+19    53    35    A
+                          NALOGODAVCA
+                          MESTO
+54    63    10    A
+                          NALOGODAVCA
+64    167 104     A       BLANKO
+168   180 13      N       MULTI E-BANK0              Konstanta
+
+DRUGI SLOG NALOGA
+
+OD    DO    DUZ   TIP     OPIS                       KOMENTAR
+                          RAČUN
+1     18    18    N       NALOGODAVCA
+                          NAZIV
+19    53    35    A       NALOGODAVCA
+                          MESTO
+54    63    10    A       NALOGODAVCA
+                                                     13 CELIH, 2 DEC. BEZ
+64    78    15    N       UKUPAN IZNOS               SEPARATORA
+79    83    5     N       BROJ NALOGA
+84    179   96    A       BLANKO
+180   180   1     N       TIP SLOGA                  SADRŽAJ 9
+
+DETALJAN SLOG NALOGA
+
+OD    DO    DUZ   TIP     OPIS                       KOMENTAR
+1     18    18    N       RAČUN PRIMAOCA
+
+                                        Ext/Int//PUBLIC
+19     53     35       A        NAZIV PRIMAOCA
+54     63     10       A        MESTO PRIMAOCA
+64     64     1        A        0
+                                MODEL POZIVA NA
+65     66     2        N,A
+                                ZADUŽENJA
+                                POZIV NA BROJ
+67     88     22       N,A
+                                ZADUŽENJA
+89     124 36          A        SVRHA DOZNAKE
+                                                                 KONSTANTNA
+125    129 5           N        0000
+                                                                 VREDNOST
+130    130 1           A        BLANKO
+131    133 3           N        ŠIFRA PLAĆANJA
+134    135 2           A        BLANKO
+                                                                 11 CELIH, 2
+136    148 13          N        IZNOS                            DECIMALNA
+                                MODEL POZ NA BROJ
+149    150 2           N,A      ODOBRENJA
+                                                                 ZAKON JOŠ
+                                POZIV NA BROJ                    DOZVOLJAVA
+151    172    22       N,A      ODOBRENJA                        PRAZNO
+173    178    6        N        DATUM VALUTE                     DDMMGG
+179    179    1        N        POREKLO                          SADRŽAJ 3
+180    180    1        N        TIP SLOGA                        SADRŽAJ 1
+
+
+Izvodi
+
+Postoje 2 tipa izvoda za SAP format koji se eksportuju
+    1. Običan SAP format – (izlaz su 2 fajla : Ime_fajla.txt i ime_fajla_cov.txt)
+    2. SWIFT SAP format – izlaz je jedan fajl: ime_fajla_swift.txt
+
+Konfiguracija SAP Plugina
+U zavistnosti od podešavanja u konfiguracionom fajlu settings.ini (koji se po podrazumevanoj lokaciji nalazi u C:\Program
+Files\Common Files\FX Client\Plugins folderu) eksportuju se određeni formati na sledeći način:
+      export_type=1
+              o eksportuju se oba formata (običan i SWIFT SAP format), ukupno 3 fajla
+      export_type=2
+              o eksportuje se samo SWIFT format – ukupno 1 fajl
+      export_type=3
+              o eksportuje se samo obican SAP format – ukupno 2 fajla
+swiftcode u ini fajlu označava swift kod koji će se koristiti u eksportovanom fajlu kod SWIFT formata.
+detail_subfiled_marker je znak koji se koristi u SWIFT formatu na početku svakog reda (podrazumevana vredost je „?”
+
+
+
+                                                  Ext/Int//PUBLIC
+Običan SAP Format
+
+Zbirni red
+
+Ekostporuje se u fajl ime_fajla_cov.txt
+OD DO DUZ TIP                OPIS                      KOMENTAR
+1     2     2        N       Oznaka                    oznaka stavke (01-stanje)
+3     20 18                  račun
+                             Datum knjiženja
+21    28 8                   prethodnog izvoda         DDMMGGGG
+                             Datum knjiženja ovog
+29    36 8                   izvoda                    DDMMGGGG
+37    54 18                  stari saldo
+55    60 6                   Broj naloga duguje
+61    78 18                  dnevni promet duguje
+79    84 6                   broj naloga potrazuje
+85    102 18                 dnevni promet potrazuje
+103 120 18                   novi saldo
+121 126 6                    broj naloga na cekanju
+127 144 18                   iznos naloga na cekanju
+145 147 3                    Redni broj izvoda
+
+
+Redovi promena
+
+Ekostporuju se u fajl ime_fajla.txt
+OD    DO     DUZ    TIP     OPIS                       KOMENTAR
+1     17     18             broj računa primaoca
+19    19     2              benefit
+21    28     8              Datum obrade               dd.mm.gg
+29    30     2              prazno
+31    65     35             Naziv kompanije
+66    66     1              prazno
+67    72     6              Datum valute               ddmmgg
+73    90     18             Račun
+91    105    15             iznos
+106   106    1              prazno
+107   109    3              Šifra plaćanja
+110   111    2              prazno
+                            Model poziva na broj
+112   113 2                 odobrenja
+                                          Ext/Int//PUBLIC
+114      135 22              Poziv na broj odobrenja
+                             Model poziva na broj
+136      137 2               zaduženja
+138      159 22              Poziv na broj zaduženja
+160      195 36              Opis svrhe plaćanja
+                             Mesto druge strane u
+196      205 10              transakciji
+                             Naziv druge strane u
+206      240 35              transakciji
+241      262 22              Broj za reklamaciju
+263      280 18              prazno
+
+
+
+
+SWIFT SAP Format
+
+
+MT940 - izvod računa
+Opšte informacije
+Koristi se EBCDIC kod. Skup dozvoljenih znakova u porukama je sledeći:
+
+abcdefghijklmnopqrstuvwxyz
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+0123456789
+/ -? : (). , '+ {} CR LF Space
+
+- Pre svake linije koriste se znakovi <CR> <LF> (ASCII 13 + 10).
+- Nijedna linija ne uključuje samo prazan prostor ili CR LF
+- Nijedna linije ne počinju sa "-".
+- Vitičaste zagrade „{}“ su dopuštene kao graničnici i ne mogu se koristiti u tekstu poruke od korisnika
+do korisnika.
+
+Status       M-obavezno, O - opcionalno
+Format
+n            Samo cifre
+a            Abecedna slova, velika slova samo
+c            Abecedna slova (velika slova) i cifre samo
+x            Bilo koji karakter, dopušten skup znakova mala i velika slova*
+d            Brojevi sa decimalnim zarezom “,“koji prethodi razlomljenom
+             delu
+
+
+                                            Ext/Int//PUBLIC
+         Formati polja se upisuju, na primer:
+
+         2n - do 2 cifre
+         3!a - uvek tri slova
+         4 * 35x - do 4 linije do 35 znakova
+
+         Budući da je dužina SWIFT poruke ograničena na maksimalno dozvoljenu dužinu, može biti
+         potrebno nekoliko poruka za smještaj podataka jednog izvoda.
+         MT940 Format specifikacija
+
+
+Status   Tag    Ime polja             Format                           Opis
+
+M        20     Referenca (TRN)       16x                              Dodijeljena od strane pošiljoca, identifikuje
+                                                                       poruku, ne sme započeti ili završiti kosom
+                                                                       crtom "/" i ne sme sadržati dva uzastopna
+                                                                       sleša '//'
+
+O        21     Povezana referenca 16x                                 Ako se šalje kao odgovor na MT920
+
+M        25     Identifikacija        35x                              račun na koji se poruka odnosi
+                računa                2!c26!n
+                Option A (IBAN)
+                Option B              8!c/12!n
+                [BIC]/[IAccNr]
+                                                                       :25:160/000000000059537
+                Option C              3!n/15!n
+                [bn]/[IAccNr]
+                                                                       :25:160/0050100202821865053000200
+                Option D              3!n/25!n
+                [bn]/[
+                AccNrKonto]
+
+M        28C Broj                     3n[/4n]                          redni broj izvoda / sekvenca poruke,
+             izvoda/Sekvenca                                           opcionalno redni broj poruke u tom izvodu
+             poruke                                                    (kada je više od jedne poruke za jedan izvod)
+
+M        60a    Početno stanje (F     1!a6!n3!a15d                     (D / C Mark) (Datum) (Valuta) (Iznos)
+                or M)                                                  PRIMER:
+
+
+
+
+                                                     Ext/Int//PUBLIC
+Status   Tag   Ime polja              Format                              Opis
+
+               Prvi klijentov izvod                                       :60F:C110506RSD16009950,00
+               za određeni period                                         Dugovni D (debit) ili potražni C (credit) saldo,
+               sadrži polje 60F                                           datum, valuta i iznos salda.
+               (prvo početno                                              Datum izražen kao YYMMDD.
+               stanje); dodatni                                           Valuta važeći kod valute.
+               izvod za isti period                                       Celobrojni deo iznosa sadrž najmanje jednu
+               sadrži polje 60M                                           cifru, decimalni zarez "," je obavezan i
+               (srednje početno                                           uključen je u maksimalnu dužinu.
+               stanje).                                                   Ovo polje mora uvek biti isto kao i polje 62a
+                                                                          (završno stanje) iz prethodnog korisnikovog
+                                                                          izvoda, za određeni račun.
+
+----- Sled polja se može ponoviti.
+
+O        61    Linija izvoda          6!n[4!n]2a[1!a]15d1!a3!c16x[//16x] Opis linije izvoda
+                                      [34x]
+
+O        86    Informacija            6*65x                               Ovo polje sadrži dodatne informacije o
+               vlasniku računa                                            transakciji navedenoj u prethodnom redu,
+                                                                          Opis polja:
+                                                                          domaća plaćanja
+                                                                          strana plaćanja
+
+-----|
+
+M        62a   Završno stanje,        1!a6!n3!a15d                        (D/C Mark) (Datum) (Valuta) (Iznos)
+               knjižena sredstva                                          Dugovni D (debit) ili potražni C (credit) saldo,
+               (F or M)                                                   datum, valuta i iznos salda.
+                                                                          Sadržaj ovog polja će se ponoviti u polju 60a
+               Ako postoji samo                                           sledećeg korisnčkog izvoda za ovaj račun.
+               jedna poruka za                                            :62F:C110507RSD107138141,70
+               izvod za taj period
+               označava se kao
+               62F, kada ima
+               nekoliko poruka za
+               isti period, sve
+               poruke osim
+               poslednje sadrže
+               polje 62M), a
+               posljednja poruka
+               izvoda polje 62F.
+
+O        64    Završno                1!a6!n3!a15d                        Ukazuje na sredstva koja su dostupna na
+               raspoloživo stanje                                         računu vlasnika (ako je potražni saldo) ili
+
+                                                     Ext/Int//PUBLIC
+Status   Tag    Ime polja               Format                               Opis
+
+                (raspoloživa                                                 saldo na koji se primjenjuje kamata (ako je
+                sredstva)                                                    dugovni saldo).
+
+-----
+
+O        65     Unapred                 1!a6!n3!a15d                         Ukazuje na sredstva koja su dostupna na
+                raspoloživo stanje                                           računu vlasnika (da li je dugovni ili potražni
+                                                                             saldo) za određeni datum valute u
+                                                                             budućnosti.
+                                                                             Kada postoji više od jedne vrednosti za
+                                                                             stavke datuma rezervisane na računu (u
+                                                                             ovom ili prethodnim periodu izvoda), ovo
+                                                                             polje će ukazati na stanje koje će biti na
+                                                                             raspolaganju vlasnika računa na datum (e)
+                                                                             koji je naznačen.
+
+-----|
+
+O        86     Information to          6*65x                                Ovo polje sadrži dodatne podatke o izvodu
+                Account Owner                                                kao celini.
+
+Status pokazuje da li je polje: M = Mandatory, O = Optional
+Ako je polje 86 prisutno u svakoj pojavi ponavljajuće sekvence mora prethoditi polje 61
+
+
+
+         6. Polje 61: Linija Izvoda
+         Ovo polje sadrži pojedinosti o svakoj transakciji. Polje 61 se ponavlja za svaku promenu na izvodu
+
+         FORMAT
+         6!n[4!n]2a[1!]15d1!a3!c16x[//16x][34x]
+
+
+         Potpolje    Format      Opis
+
+         1           6!n         Datum valute (YYMMDD)
+         2           [4!n]       Datum unosa (MMDD)
+         3           2a          Debit/Credit (C, D, RC, RD) (Duguje D (debit) ili potražuje C (credit), RC
+                                 Reversal of credit (storno odobrenja), RD Reversal of debit (storno zaduženja)
+         4           [1!a]       kod sredstava (treći karakter šifre valute, ako je potrebno)
+         5           15d         Iznos (12 celih, „,“, dve decimale)
+         6           1!a3!c      Tip Transakcije, kôd za identifikaciju tipa transakcije, može sadržati:
+                                                       Ext/Int//PUBLIC
+                    S3!n - poslednja tri karaktera će ukazati na vrstu SWIFT poruke koja je
+                    prouzrokovala zaduženje ili poruke za obaveštenje vlasnika računa za uneta
+                    odobrenja,
+                    N3!c – kodira se izvor ili osnov plaćanja (tabela kodova), nije poslato kroz
+                    SWIFT
+                    F3!c – kodira se izvor ili osnov plaćanja (transakcija potiče od banke)
+7         16x       Referenca za vlasnika računa, do 16 karaktera. Ako referenca nije dostupna
+                    koristiće se kod NONREF.
+8         [//16x]   Referenca transakcije u Banci (institucije koja servisira račun)
+9         [34x]     Dopunski detalji, do 34 karaktera
+
+
+
+PRIMER
+(1) :61:0901230122C3500,25FCHK304955//4958843
+DODATNE INFORMACIJE
+
+
+
+
+                                         Ext/Int//PUBLIC
+7. Polje 86: Informacije za vlasnika računa
+
+Domaća plaćanja (dinarski izvod)
+
+
+                                      Format SWIFT
+                               Status
+Sub field Name     Code                        Max.            Contents
+                               SWIFT F/L
+                                               Length
+Identification
+                   GVC         O        3!a         3          Business Transaction code
+code
+Narrative          ?20         O        3*35x       108        Tekst svrhe plaćanja
+                   ?21         O        7x          10         SIF- Šifra plaćanja
+                   ?22         O        24x         27         PBZ- Poziv na broj zaduženja
+                   ?23         O        24x         27         PBO- Poziv na broj odobrenja
+Account            ?30         O        18n         21         Račun primaoca/uplatioca
+Customer           ?32         O        70c         73         Ime primaoca/uplatioca
+                   ?33         O        35c         38         Ime primaoca/uplatioca (mesto)
+Max. Total         (6 x 65x)                        307
+Length
+
+PRIMER
+(1) :86:221
+?20Promet robe i usluga finalna potrošnja
+?21SIF-221
+?22PBZ-
+?23PBO-1874020210000
+?30160000000000003718
+?31160000000000003718
+?32BOGUNOVIĆ AUTO DOO ZEMUN
+?33ZEMUN
+
+Internacionalna plaćanja (devizni izvod)
+
+                                              Format SWIFT
+                               Status
+Sub field Name       Code                     F/L     Max.        Contents
+                               SWIFT
+                                                      Length
+
+Identification code GVC        O              3!a       3         Business Transaction code
+
+                                              Ext/Int//PUBLIC
+Booking text         ?00      O            27c         30    Nalog broj/ili broj predmeta (ako nalog
+                                                             nije formiran)
+Narrative            ?20      O            70c         73    ime primaoca/uplatioca
+                     ?21      O            35c         38    ime primaoca/uplatioca (nastavak)
+                     ?22      O            19c         22    iznos originalne valute
+                                                             OCMT/EUR5000
+                     ?23      O            17c         20    Troškovi
+                                                             /CHGS/SHA/EUR30
+                     ?24      O            10c         13    SIF-OSN šifra osnova
+                     ?25      O            27c         30    FAKTURA broj fakture/godina
+                     ?26      O            27c     30        /RFB/opis transakcije
+                     ?27      O            27x     30        Bankarske troskove snosi
+                     ?28      O            3 * 35x 108       opis plaćanja
+Bank Code            ?30     O           12c           15    Swift Banc Code primaoca/uplatioca
+IBAN                 ?38     O           34c           37    IBAN
+                     Max. Total Length (6*65x)         449
+
+PRIMER
+(1) :86:
+?000746081054956
+?20PROGRES SERBIA DOO BEOGRAD
+?21KNEZ MIHAILOVA 31-45
+?22OCMT/EUR387,08
+?23CHGS/OUR/EUR0,00
+?24SIF-OSN
+?25FAKTURA /
+?26/RFB/službena putovanja u inostranstvo
+?27SHA
+?28Povraćaj dela neiskorišćene akontacije za sl. Put
+?3007759231
+?38RS35160005010006592002
+
+
+
+
+                                           Ext/Int//PUBLIC
+Multi E-bank format
+Platni nalozi
+Datoteka se sastoji iz reda sa adresnim stavkom, reda sa sabirnim stavkom i toliko redova sa
+individualnim stavkama koliko je u datoteki naloga.
+
+Format reda datoteke sa sabirnim stavkom:
+
+Pozicija   Dužina    Sadržaj polja
+1          18        Broj računa
+1          3          - fiksni broj banke                 Broj računa, naziv i mesto prepišu
+4          13         - broj računa                       se iz prvog naloga u datoteki.
+17         2          - kontrolni broj
+19         35        Naziv
+54         10        Mesto
+64         15        Zbroj iznosa svih naloga
+79         5         Broj platnih naloga u datoteki
+84         96        Prazno
+180        1         Tip stavka (9 – sabirni stavak)
+181        2         Kraj reda (0x0D, 0x0A)
+
+Format reda datoteke sa individualnim stavkom:
+
+Pozicija    Dužina     Sadržaj polja
+1           18         Broj računa
+1           3           - fiksni broj banke
+4           13          - broj računa
+17          2           - kontrolni broj
+19          35         Naziv primaoca
+54          10         Mesto primaoca
+64          1          Popunjeno sa "0"
+65          2          Model poziva zaduženja ("00" ili od korisnika popunjena vrednost)
+67          22         Poziv zaduženja (prazno ili od korisnika popunjena vrednost)
+89          36         Svrha plaćanja
+125         5          Popunjeno sa "00000"
+130         1          Prazno (blank, " ")
+131         1          Oblik plaćanja ("2" – prenos ili "3" – kompenzacija:
+                       zaduženje i odobrenje istog računa za isti iznos)
+132         2          Šifra plaćanja (po šifarniku trn.dat)
+134         2          Prazno (blank, " ")
+
+                                           Ext/Int//PUBLIC
+136        13            Iznos sa parama sa dve decimale, bez zareza
+                         (desno poravnato)
+149         2            Model poziva odobrenja ("00" ili od korisnika
+                         popunjena vrednost)
+151         22           Poziv odobrenja (prazno ili od korisnika
+                         popunjena vrednost)
+173         6            Datum valutacije (DDMMGG)
+179         1            Tip dokumenta ("0" – Nalog za prenos, "4" – Nalog
+                         za prenos – kompenzacija)
+180         1            Tip stavka (fiksno "1")
+181         2            Kraj reda (0x0D, 0x0A)
+ Datoteka se završi s znakom 0x1A.
+
+
+
+
+                                          Ext/Int//PUBLIC
+Promet i izvodi
+Format reda datoteke za izvoz prometa i izvoda:
+
+Pozicija            Dužina               Tip                 Sadržaj polja
+1                   18                   N                   Broj računa
+                                                             partnera, primaoca
+                                                             ili uplatioca
+                                                             oznaka knjiženja =
+                                                             "10" – račun
+                                                             primaoca
+                                                             oznaka knjiženja =
+                                                             "20" – račun
+                                                             uplatioca
+1                            3                      - fiksni broj banke
+4                            13                     - broj računa
+17                           2                      - kontrolni broj
+19                  2                    C                   Oznaka knjiženja:
+                                                             "10" – u teret
+                                                             "20" – u dobro
+                                                             "30" – storno na
+                                                             teret
+                                                             "40" – storno u
+                                                             korist
+21                  8                    D                   Datum obrade
+                                                             (knjiženja), format
+                                                             DD.MM.GG
+29                  2                    C                   Storno prometa
+                                                             (storno= "S ", inače
+                                                             prazno )
+31                  35                   C                   Naziv komitenta
+66                           1                      Prazno (blanko, " ")
+67                  6                    D                   Datum uplate
+                                                             (datum valute),
+                                                             format DDMMGG
+73                  18                   N                   Broj računa
+                                                             komitenta
+73                           3                      - fiksni broj banke
+76                           13                     - broj računa
+89                           2                      - kontrolni broj
+91                  15                   N                   Iznos sa parama sa
+                                                             dve decimale, bez
+                                                             zareza
+                                                             (desno poravnano)
+                                       Ext/Int//PUBLIC
+106   1          C                  Popunjeno sa "8"
+107   1          C                  Oblik plaćanja "8"
+108   2          C                  Šifra plaćanja (po
+                                    šifarniku ili
+                                    vrednost koju šalje
+                                    banka)
+110        2                 Prazno (blanko, " ")
+112   2          N                  Model poziva na
+                                    broj zaduženja ("0",
+                                    "00" ili vrednost
+                                    koju šalje banka)
+114   22         C                  Poziv na broj
+                                    zaduženja (prazno
+                                    ili vrednost koju
+                                    šalje banka)
+136   2          C                  Model poziva na
+                                    broj odobrenja ("0",
+                                    "00" ili vrednost
+                                    koju šalje banka)
+138   22         C                  Poziv odobrenja
+                                    (prazno ili vrednost
+                                    koju šalje banka)
+160   36         C                  Svrha plaćanja
+196   10         C                  Mesto primaoca
+206   35         C                  Naziv primaoca
+241   22         C                  Broj za reklamaciju
+                                    (referenca banke)
+263   18         N                    Broj računa
+                                      primaoca ili prazno
+263        3                 - fiksni broj banke
+266        13                - broj računa
+279        2                 - kontrolni broj
+281   2          C                    Kraj reda (0x0D,
+                                      0x0A)
+
+
+
+
+                Ext/Int//PUBLIC
+Rekapitulacija izvoda
+Format reda datoteke za izvoz rekapitulacije izvoda je:
+
+Pozicija           Dužina              Tip                  Sadržaj polja
+1                  2                   N                    Vrsta stavka: 01 –
+                                                            stanje na računu
+3                  18                  N                    Broj računa
+3                         3                         - fiksni broj banke
+6                         13                        - broj računa
+19                        2                         - kontrolni broj
+21                 8                   D                    Datum obrade,
+                                                            format
+                                                            DD.MM.GGGG
+29                 8                   D                    Datum
+                                                            prethodnog
+                                                            izvoda, format
+                                                             DD.MM.GGGG
+37                 18                  N                     Konačno stanje
+                                                             prethodnog
+                                                             izvoda
+55                 6                   N                     Broj transakcija -
+                                                             zaduženje
+61                 18                  N                     Dnevni promet –
+                                                             zaduženje
+79                 6                   N                     Broj transakcija -
+                                                             odobrenje
+85                 18                  N                     Dnevni promet -
+                                                             odobrenje
+103                18                  N                     Novo stanje
+121                6                   N                     Broj transakcija
+                                                             na čekanju za
+                                                             danas
+127                18                  N                     Ukupni iznos na
+                                                             čekanju za danas
+145                3                   N                     Redni broj izvoda
+148                2                   C                     Kraj reda (0x0D –
+                                                             carriage return,
+                                                             0x0A – Line feed)
+
+
+
+
+                                           Ext/Int//PUBLIC
+

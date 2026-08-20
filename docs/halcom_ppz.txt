@@ -1,0 +1,273 @@
+                          Hal E-Bank
+           (Formati uvozno/izvoznih datoteka)
+
+
+
+
+Hal E-Bank – Formati uvozno/izvoznih datoteka
+Verzija: 15.x.x.20
+Autor: HALCOM d.d., Ljubljana
+Uredio: HALCOM a.d., Beograd
+
+© 2011 Halcom d.d., Ljubljana
+Sadržaj
+1     Formati uvozno/izvoznih datoteka ................................................................................................. 3
+    1.1     Platni nalozi - izvoz................................................................................................................ 3
+    1.2     Platni nalozi - uvoz ................................................................................................................ 4
+    1.3     Promet i izvodi ....................................................................................................................... 5
+    1.4     Rekapitulacija izvoda ............................................................................................................ 6
+    1.5     Imenik korisnika i njihovih računa ..................................................................................... 6
+
+
+
+
+                                                                                                                                                  2
+1 Formati uvozno/izvoznih datoteka
+
+1.1 Platni nalozi - izvoz
+      Datoteka sa izvezenim nalozima sastoji se iz reda sa adresnom
+    stavkom, reda sa zbirnom stavkom i toliko redova sa individualnim
+    stavkama koliko je naloga.
+     Format reda datoteke sa adresnom stavkom:
+      Pozicija Dužina Tip                            Sadržaj polja
+     1         18     N   Broj računa
+             1         3       - fiksni broj banke             Broj računa, naziv i
+             4        13       - broj računa                   mesto prepišu se iz
+            17         2       - kontrolni broj                prvog naloga u
+     19          35        C   Naziv                           datoteci.
+     54          10        C   Mesto
+     64          6         D   Datum valute - samo ako je datum jednak na svim nalozima
+     70          98            Prazno (blanko, " ")
+     168         12        C   Upisan je tekst „MULTI E-BANK“
+     180         1         N   Tip stavke (0 – adresna stavka)
+     181         2         C   Kraj reda (0x0D – carriage return, 0x0A – Line feed)
+
+     Format reda datoteke sa zbirnom stavkom:
+      Pozicija Dužina Tip                            Sadržaj polja
+     1         18     N   Broj računa
+             1         3       - fiksni broj banke
+             4        13       - broj računa                 Broj računa, naziv i
+            17         2       - kontrolni broj              mesto prepišu se iz
+                                                             prvog naloga u datoteci.
+     19          35        C   Naziv
+     54          10        C   Mesto
+     64          15        N   Zbir iznosa svih naloga
+     79          5         N   Broj platnih naloga u datoteci
+     84          96            Prazno(blanko, " ")
+     180         1         N   Tip stavke (9 – sabirna stavka)
+     181         2         C   Kraj reda (0x0D – carriage return, 0x0A – Line feed)
+
+
+
+
+                                                                                      3
+     Format reda datoteke sa individualnom stavkom:
+     Pozicija Dužina Tip                     Sadržaj polja                Obavezna
+                                                                            polja
+     1          18        N   Broj računa                                     *
+            1         3       - fiksni broj banke
+            4        13       - broj računa
+           17         2       - kontrolni broj
+     19         35        C   Naziv primaoca                                 *
+     54         10        C   Mesto primaoca
+     64         1             Popunjeno sa "0"
+     65         2         N   Model poziva na broj zaduženja
+                              (od korisnika popunjena vrednost)
+     67         23        C   Poziv na broj zaduženja (prazno ili
+                              od korisnika popunjena vrednost)
+     90         36        C   Svrha plaćanja                                 *
+     126        5             Popunjeno sa "00000"
+     131        1             Prazno (blanko, " ")                           *
+     132        1         C   Oblik plaćanja ("2" – prenos ili "3" –         *
+                              kompenzacija: zaduženje i odobrenje istog
+                              računa za isti iznos)
+     133        2         C   Šifra plaćanja (po šifarniku)                  *
+     135        1         N   Oblik plaćanja (prazno blanko, " " –
+                              prenos odnosno kompenzacija ili "9" –
+                              povraćaj sredstava)
+     136        1             Prazno (blanko, " ")
+     137        13        N   Iznos sa parama sa dve                         *
+                              decimale, bez zareza (desno
+                              poravnata)
+     150        2         N   Model poziva na broj odobrenja
+                              (od korisnika popunjena vrednost)
+     152        23        C   Poziv na broj odobrenja (prazno ili
+                              od korisnika popunjena vrednost)
+     175        6         D   Datum valute (DDMMGG)
+     181        1         N   Tip dokumenta ("0" – Nalog za prenos,
+                              "4" – Nalog za prenos – kompenzacija)
+     182        1         N   Tip stavke (fiksno "1")                        *
+     183        2         C   Kraj reda (0x0D – carriage return, 0x0A        *
+                              – Line feed)
+
+
+
+     Datoteka se završava sa znakom 0x1A (Kraj datoteke).
+
+
+1.2 Platni nalozi - uvoz
+     Uvezeni nalozi moraju biti u formatu opisanom u prethodnom poglavlju.
+
+
+
+
+                                                                                     4
+1.3 Promet i izvodi
+     Format reda datoteke za izvoz prometa i izvoda je:
+     Pozicija Dužina Tip                        Sadržaj polja
+                               Broj računa partnera, primaoca ili uplatioca
+     1           18        N   oznaka knjiženja = "10" – račun primaoca
+                               oznaka knjiženja = "20" – račun uplatioca
+             1         3       - fiksni broj banke
+             4        13       - broj računa
+            17         2       - kontrolni broj
+                               Oznaka knjiženja:
+                               "10" – u teret
+     19          2         C   "20" – u dobro
+                               "30" – storno na teret
+                               "40" – storno u korist
+     21          8         D   Datum obrade (knjiženja), format DD.MM.GG
+     29          2         C   Storno prometa (storno= "S ", inače prazno )
+     31          35        C   Naziv komitenta
+     66          1             Prazno (blanko, " ")
+     67          6         D   Datum uplate (datum valute), format DDMMGG
+     73          18        N   Broj računa komitenta
+            73         3       - fiksni broj banke
+            76        13       - broj računa
+            89         2       - kontrolni broj
+
+     91          15        N   Iznos sa parama sa dve decimale, bez zareza
+                               (desno poravnano)
+     106         1         C   Popunjeno sa "8"
+     107         1         C   Oblik plaćanja "8"
+     108         2         C   Šifra plaćanja (po šifarniku ili vrednost koju šalje banka)
+     110         2             Prazno (blanko, " ")
+     112         2         N   Model poziva na broj zaduženja ("0", "00" ili vrednost
+                               koju šalje banka)
+
+     114         22        C   Poziv na broj zaduženja (prazno ili vrednost koju šalje
+                               banka)
+
+     136         2         C   Model poziva na broj odobrenja ("0", "00" ili vrednost
+                               koju šalje banka)
+     138         22        C   Poziv odobrenja (prazno ili vrednost koju šalje banka)
+     160         36        C   Svrha plaćanja
+     196         10        C   Mesto primaoca
+     206         35        C   Naziv primaoca
+     241         22        C   Broj za reklamaciju (referenca banke)
+     263         18        N   Broj računa primaoca ili prazno
+           263         3       - fiksni broj banke
+           266        13       - broj računa
+           279         2       - kontrolni broj
+     281         2         C    Kraj reda (0x0D, 0x0A)
+
+
+     Datoteka se završava sa znakom 0x1A.
+
+
+                                                                                         5
+1.4 Rekapitulacija izvoda
+      Format reda datoteke za izvoz rekapitulacije izvoda je:
+     Pozicija Dužina Tip                      Sadržaj polja
+     1        2      N   Vrsta stavka: 01 – stanje na računu
+     3        18     N   Broj računa
+             3         3       - fiksni broj banke
+             6        13       - broj računa
+            19         2       - kontrolni broj
+     21          8         D   Datum obrade, format DD.MM.GGGG
+     29          8         D   Datum prethodnog izvoda, format DD.MM.GGGG
+     37          18        N   Konačno stanje prethodnog izvoda
+     55          6         N   Broj transakcija - zaduženje
+     61          18        N   Dnevni promet – zaduženje
+     79          6         N   Broj transakcija - odobrenje
+     85          18        N   Dnevni promet - odobrenje
+     103         18        N   Novo stanje
+     121         6         N   Broj transakcija na čekanju za danas
+     127         18        N   Ukupni iznos na čekanju za danas
+     145         3         N   Redni broj izvoda
+     148         2         C   Kraj reda (0x0D – carriage return, 0x0A – Line feed)
+
+
+      Datoteka se završava znakom 0x1A (kraj datoteke).
+
+
+
+
+1.5 Imenik korisnika i njihovih računa
+     Datoteka u svakom redu sadrži podatke o poslovnom partneru i jednom
+    od njegovih računa. Primer reda tekstualne datoteke za unos u imenik
+    poslovnih partnera prikazan je u okviru. (U okviru je jedan red koji je
+    zbog velike širine prikazan u nekoliko redova):
+
+ "ELECTRONIC BANKING BUREAU A.D.","BEOGRADSKA 39","11000 BEOGRAD",
+ "SRBIJA","NAPOMENA O POSLOVNOM PARTNERU","999-000000000052434","DEMO
+ BANKA","ADRESA BANKE","MESTO BANKE","DRŽAVA BANKE","RS","NAPOMENA ZA
+ BANKU","DEMORSBG","00100-50005","IBAN"
+
+      Opis formata reda:
+          svaki slog sadrži 15 polja / kolona,
+          sadržaj svakog polja nalazi se između dva dupla znaka navoda,
+          razgraničenja između polja su zarezi,
+          prazna polja su predstavljena sa dva uzastopna dvostruka znaka
+           navoda („“),
+          red se završava sa znakom 0x0D i 0x0A (Heksadecimalno:
+           Carriage Return i Line Feed).
+                                                                6
+ Napomena: Dupli znak navoda unutar polja predstavlja dva dupla
+znaka navoda. Tako se na primer „TO JE „““ uvozi kao TO JE „ .
+  Podaci su, po sadržaju, razdeljeni u tri grupe. Polja od 1 do 5 sadrže
+podatke o primaocu, polja 6 i 13 podatke o računu i modelu i pozivu, a
+polja od 7 do 12 i polje 14 podatke o banci, kod koje je otvoren račun.
+Podaci o banci se kod domaćih računa pri uvozu zamenjuju sa podacima
+iz imenika banaka. U poljima 6 i 13 su dozvoljeni znaci samo cifre od 0
+do 9 i crtica -.
+  Napomena: Model podataka imenika je organizovan tako da
+omogućava i predstavljanje podataka o računima poverioca kod
+inostranih banaka, koje Hal E-Bank za domaći platni promet ne koristi.
+ Značaj i najveću dozvoljenu širinu polja prikazuje tabela. Ako je polje 6
+(broj računa) prazno, u imenik se unose samo podaci o primaocu.
+
+
+  Broj
+            Dužina     Obavezno                 Sadržaj polja
+  polja
+ 1         35              *        Naziv poslovnog partnera
+ 2         35                       Adresa poslovnog partnera
+                                    Poštanski broj i mesto poslovnog
+ 3         35              *
+                                    partnera
+ 4         35              *        Država poslovnog partnera
+ 5         140                      Napomena o poslovnom partneru
+                                    Broj računa u formatu (npr. 999-
+ 6         34
+                                    000000000052434)
+                                    Naziv banke kod koje je otvoren
+ 7         35
+                                    račun
+                                    Adresa banke kod koje je otvoren
+ 8         35
+                                    račun
+                                    Poštanski broj i mesto banke kod
+ 9         35
+                                    koje je otvoren račun
+                                    Država banke kod koje je otvoren
+ 10        35
+                                    račun
+ 11        2                        Kôd države (npr. RS, HR, DE...)
+                                    Napomena banke kod koje je
+ 12        140
+                                    otvoren račun
+                                    BIC kôd banke kod koje je otvoren
+ 13        11
+                                    račun
+                                    Model (prva dva znaka) i poziv na
+ 14        24
+                                    broj računa
+ 15        35                       Broj računa banke kod NBS
+ 16        2                        Kraj reda (0x0D, 0x0A)
+
+
+
+
+                                                                        7
+
