@@ -10,7 +10,7 @@
     "license": "LGPL-3",
     "images": ["static/description/banner.png"],
     "author": "Coriolis Lab",
-    "website": "https://github.com/Coriol-is/l10n-rs-bank-statement-import",
+    "website": "https://github.com/Coriol-is/l10n_rs_bank_statement_import",
     "support": "odoo@coriol.co",
     "depends": ["account_statement_import_file"],
     "data": [],

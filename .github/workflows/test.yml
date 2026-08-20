@@ -1,0 +1,52 @@
+name: tests
+
+on:
+  push:
+    branches: ["main", "19.0"]
+  pull_request:
+
+jobs:
+  parser-tests:
+    name: Serbian statement parser tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest
+      - run: pytest -q l10n_rs_bank_statement_import/tests/test_halcom.py l10n_rs_bank_statement_import/tests/test_asseco.py l10n_rs_bank_statement_import/tests/test_rol.py
+
+  odoo-tests:
+    name: Odoo 19 integration tests
+    runs-on: ubuntu-latest
+    container:
+      image: odoo:19
+      options: --user root
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd "pg_isready -U odoo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OCA dependencies
+        run: |
+          git clone --depth 1 --branch 19.0 https://github.com/OCA/bank-statement-import.git /tmp/oca-bank
+          find /tmp/oca-bank -mindepth 1 -maxdepth 1 -type d -name 'account_*' \
+            -exec ln -s {} /mnt/extra-addons/ \;
+      - name: Run module tests
+        run: |
+          ln -s "$GITHUB_WORKSPACE/l10n_rs_bank_statement_import" /mnt/extra-addons/l10n_rs_bank_statement_import
+          odoo --db_host=postgres --db_user=odoo --db_password=odoo \
+               -d bank_import_ci -i l10n_rs_bank_statement_import \
+               --test-tags /l10n_rs_bank_statement_import \
+               --stop-after-init --log-level=test
+
