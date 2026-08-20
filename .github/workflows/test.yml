@@ -39,6 +39,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install OCA dependencies
         run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git ca-certificates
           git clone --depth 1 --branch 19.0 https://github.com/OCA/bank-statement-import.git /tmp/oca-bank
           find /tmp/oca-bank -mindepth 1 -maxdepth 1 -type d -name 'account_*' \
             -exec ln -s {} /mnt/extra-addons/ \;
@@ -49,4 +51,3 @@ jobs:
                -d bank_import_ci -i l10n_rs_bank_statement_import \
                --test-tags /l10n_rs_bank_statement_import \
                --stop-after-init --log-level=test
-
