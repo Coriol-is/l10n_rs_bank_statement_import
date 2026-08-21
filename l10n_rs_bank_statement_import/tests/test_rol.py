@@ -6,7 +6,13 @@ import datetime
 from decimal import Decimal
 from pathlib import Path
 
-from l10n_rs_bank_statement_import.parsers import parse_any, rol
+import pytest
+
+from l10n_rs_bank_statement_import.parsers import (
+    StatementParseError,
+    parse_any,
+    rol,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures" / "rol"
 
@@ -102,6 +108,20 @@ def test_parse_devizni_real_anonymized_file():
     assert trx.partner_name.startswith("DVA BORA 2000")
     assert trx.unique_import_id == "4611050147000002"
     assert "Napomena: /INV/0004/11" in trx.narration
+
+
+def test_dtd_payload_is_rejected_before_parsing():
+    """XXE hardening: a DOCTYPE/ENTITY payload must be refused cleanly
+    (ElementTree expands internal entities), not parsed or crashed on."""
+    data = (
+        b'<?xml version="1.0" encoding="utf-8"?>\n'
+        b'<!DOCTYPE TransakcioniRacunPrivredaIzvod [<!ENTITY x "boom">]>\n'
+        b"<TransakcioniRacunPrivredaIzvod>&x;</TransakcioniRacunPrivredaIzvod>"
+    )
+    with pytest.raises(StatementParseError, match="DOCTYPE"):
+        rol.parse_statements(data)
+    with pytest.raises(StatementParseError, match="DOCTYPE"):
+        parse_any(data)
 
 
 def test_parse_any_dispatches_rol():

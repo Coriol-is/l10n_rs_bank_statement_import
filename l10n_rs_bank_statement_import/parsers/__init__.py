@@ -26,6 +26,7 @@ from .base import (  # noqa: F401 - re-exported for the Odoo glue and tests
     UnsupportedFormat,
     UnsupportedVariant,
     decode_bytes,
+    reject_dtd,
 )
 
 
@@ -51,6 +52,7 @@ def _parse_single(data: bytes, cov_data: bytes = None, filename: str = None) -> 
                 "Halcom FX (devizni) pseudo-XML statements are not supported yet "
                 "— planned for a future release."
             )
+        reject_dtd(text)
         try:
             root = ET.fromstring(text)
         except ET.ParseError as exc:

@@ -30,6 +30,7 @@ from .base import (
     map_currency,
     parse_date,
     plain_decimal,
+    reject_dtd,
 )
 
 ROOT_TAGS = ("stmtrs", "pmtnotification", "stmtrslist")
@@ -54,6 +55,7 @@ def looks_like_asseco(root: ET.Element) -> bool:
 def parse_statements(data: bytes) -> list:
     """Parse an Asseco XML document into a list of :class:`Statement`."""
     text = decode_bytes(data)
+    reject_dtd(text)
     try:
         root = ET.fromstring(text)
     except ET.ParseError as exc:

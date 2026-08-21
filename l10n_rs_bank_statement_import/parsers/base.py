@@ -85,6 +85,22 @@ def decode_bytes(data: bytes) -> str:
     raise StatementParseError(f"Could not decode file: {last_exc}")
 
 
+def reject_dtd(text: str) -> None:
+    """Refuse XML that carries a DTD, before it reaches the parser.
+
+    Serbian bank exports never use DTDs, and :mod:`xml.etree.ElementTree`
+    expands internal entities, so an uploaded file with a ``<!DOCTYPE`` or
+    ``<!ENTITY`` declaration is at best broken and at worst an XXE /
+    entity-expansion attack.
+    """
+    upper = text.upper()
+    if "<!DOCTYPE" in upper or "<!ENTITY" in upper:
+        raise StatementParseError(
+            "XML with a document type declaration (<!DOCTYPE/<!ENTITY) "
+            "is not accepted"
+        )
+
+
 def implied_decimal(digits: str) -> Decimal:
     """Fixed-width amount with two implied decimals: '000000006980880' -> 69808.80."""
     digits = digits.strip() or "0"

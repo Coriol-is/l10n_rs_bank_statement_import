@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE stmtrs [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+  <!ENTITY lol "lollollollollollollollollollollol">
+]>
+<stmtrs>
+  <rstype>ibank.payment.stmtrs.ledger</rstype>
+  <acctid>&xxe;</acctid>
+  <curdef>&lol;</curdef>
+</stmtrs>

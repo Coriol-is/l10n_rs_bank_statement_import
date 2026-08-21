@@ -25,6 +25,7 @@ from .base import (
     map_currency,
     parse_date,
     plain_decimal,
+    reject_dtd,
 )
 
 ROOT_TAGS = ("transakcioniracunprivredaizvod", "racunprivredaizvod")
@@ -36,6 +37,7 @@ def looks_like_rol(root: ET.Element) -> bool:
 
 def parse_statements(data: bytes) -> list:
     text = decode_bytes(data)
+    reject_dtd(text)
     try:
         root = ET.fromstring(text)
     except ET.ParseError as exc:

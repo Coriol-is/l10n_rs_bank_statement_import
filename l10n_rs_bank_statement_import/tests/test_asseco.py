@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from l10n_rs_bank_statement_import.parsers import (
+    StatementParseError,
     UnsupportedVariant,
     asseco,
     parse_any,
@@ -85,6 +86,16 @@ def test_parse_any_dispatches_asseco():
     statements = parse_any(_read("FXclientIzvod.xml"))
     assert len(statements) == 1
     assert statements[0].account_number == "160-0000000015722-52"
+
+
+def test_dtd_payload_is_rejected_before_parsing():
+    """XXE hardening: a DOCTYPE/ENTITY payload must be refused cleanly
+    (ElementTree expands internal entities), not parsed or crashed on."""
+    data = _read("stmtrs_xxe_entity.xml")
+    with pytest.raises(StatementParseError, match="DOCTYPE"):
+        asseco.parse_statements(data)
+    with pytest.raises(StatementParseError, match="DOCTYPE"):
+        parse_any(data)
 
 
 def test_fx_statement_is_rejected_instead_of_silently_emptied():
