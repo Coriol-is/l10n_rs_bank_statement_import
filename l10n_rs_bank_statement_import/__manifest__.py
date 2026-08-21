@@ -19,7 +19,7 @@
     "website": "https://github.com/Coriol-is/l10n_rs_bank_statement_import",
     "support": "odoo@coriol.co",
     "depends": ["account_statement_import_file"],
-    "data": [],
+    "data": ["views/account_statement_import_view.xml"],
     "installable": True,
     "application": False,
 }

@@ -107,3 +107,16 @@ class TestSerbianStatementImport(TransactionCase):
 
         with self.assertRaises(UserError):
             self._import(b"definitely not a bank statement", "junk.txt")
+
+    def test_journal_registers_the_oca_import_source(self):
+        """The wizard writes ``file_import_oca`` onto the journal, so that
+        value must actually be part of the field's selection."""
+        selection = (
+            self.env["account.journal"]
+            .fields_get(["bank_statements_source"])["bank_statements_source"]["selection"]
+        )
+        self.assertIn("file_import_oca", [key for key, _label in selection])
+
+        data = (FIXTURES / "halcom" / "HalcomIZVOD.txt").read_bytes()
+        self._import(data, "izvod.txt")
+        self.assertEqual(self.journal.bank_statements_source, "file_import_oca")
