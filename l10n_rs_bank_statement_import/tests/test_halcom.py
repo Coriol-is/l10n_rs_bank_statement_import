@@ -188,6 +188,17 @@ def test_prosireni_utf8():
     )
 
 
+def test_prosireni_missing_amount_columns_rejected():
+    try:
+        parse_any(_read("prosireni_missing_columns.txt"))
+    except StatementParseError as exc:
+        assert "missing required column" in str(exc)
+        assert "ZNESEK_V_BREME" in str(exc)
+        assert "ZNESEK_V_DOBRO" in str(exc)
+    else:
+        raise AssertionError("header without amount columns should be rejected")
+
+
 def test_prosireni_duplicate_header_columns_rejected():
     # rename ST_IZPISKA to a second ST_RACUNA (same width) in the header
     data = _read("prosireni.txt").replace(b"ST_IZPISKA", b"ST_RACUNA ")

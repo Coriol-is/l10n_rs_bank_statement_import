@@ -269,6 +269,20 @@ def parse_prosireni(data: bytes) -> list:
             + ", ".join(duplicates)
         )
     col = {name: idx for idx, name in enumerate(header)}
+    # Without these columns every row would come out as silent zeros /
+    # empties, so demand them up front and fail with a clear message.
+    missing = [
+        name
+        for name in ("ST_RACUNA", "ZNESEK_V_BREME", "ZNESEK_V_DOBRO")
+        if name not in col
+    ]
+    if "DATUM_KNJ" not in col and "DATUM_OBD" not in col:
+        missing.append("DATUM_KNJ/DATUM_OBD")
+    if missing:
+        raise StatementParseError(
+            "Halcom prošireni header is missing required column(s): "
+            + ", ".join(missing)
+        )
 
     def get(row, name, default=""):
         idx = col.get(name)
