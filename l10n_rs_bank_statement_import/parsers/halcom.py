@@ -262,6 +262,12 @@ def parse_prosireni(data: bytes) -> list:
     if not lines or not looks_like_prosireni(text):
         raise StatementParseError("Not a Halcom prošireni file")
     header = [col.strip().upper() for col in lines[0].split("#")]
+    duplicates = sorted({name for name in header if name and header.count(name) > 1})
+    if duplicates:
+        raise StatementParseError(
+            "Duplicate column(s) in Halcom prošireni header: "
+            + ", ".join(duplicates)
+        )
     col = {name: idx for idx, name in enumerate(header)}
 
     def get(row, name, default=""):

@@ -188,6 +188,18 @@ def test_prosireni_utf8():
     )
 
 
+def test_prosireni_duplicate_header_columns_rejected():
+    # rename ST_IZPISKA to a second ST_RACUNA (same width) in the header
+    data = _read("prosireni.txt").replace(b"ST_IZPISKA", b"ST_RACUNA ")
+    try:
+        halcom.parse_prosireni(data)
+    except StatementParseError as exc:
+        assert "Duplicate" in str(exc)
+        assert "ST_RACUNA" in str(exc)
+    else:
+        raise AssertionError("duplicate header columns should be rejected")
+
+
 def test_prosireni_cp1250_encoding_survival():
     statements = parse_any(_read("HalcomIZVODprosireni.txt"))
     assert len(statements) == 1
