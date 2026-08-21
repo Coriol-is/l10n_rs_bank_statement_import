@@ -79,17 +79,19 @@ class AccountStatementImport(models.TransientModel):
                 for trx in statement.transactions
             ],
         }
+        # float(str(...)): convert Decimal via its exact string form so the
+        # OCA wizard gets the shortest-repr float for the decimal value.
         if statement.balance_start is not None:
-            vals["balance_start"] = float(statement.balance_start)
+            vals["balance_start"] = float(str(statement.balance_start))
         if statement.balance_end is not None:
-            vals["balance_end_real"] = float(statement.balance_end)
+            vals["balance_end_real"] = float(str(statement.balance_end))
         return vals
 
     def _l10n_rs_transaction_vals(self, trx):
         vals = {
             "payment_ref": trx.payment_ref,
             "date": trx.date,
-            "amount": float(trx.amount),
+            "amount": float(str(trx.amount)),
             "unique_import_id": trx.unique_import_id,
         }
         if trx.account_number:
