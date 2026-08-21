@@ -6,7 +6,13 @@ import datetime
 from decimal import Decimal
 from pathlib import Path
 
-from l10n_rs_bank_statement_import.parsers import asseco, parse_any
+import pytest
+
+from l10n_rs_bank_statement_import.parsers import (
+    UnsupportedVariant,
+    asseco,
+    parse_any,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures" / "asseco"
 
@@ -79,3 +85,16 @@ def test_parse_any_dispatches_asseco():
     statements = parse_any(_read("FXclientIzvod.xml"))
     assert len(statements) == 1
     assert statements[0].account_number == "160-0000000015722-52"
+
+
+def test_fx_statement_is_rejected_instead_of_silently_emptied():
+    """Devizni statements share the <stmtrs> root but use stmbal/closing.
+
+    Parsing one with the domestic field names succeeds without error and
+    produces a statement with no balances, so the variant must be refused.
+    """
+    data = _read("stmtrs_fx_synthetic.xml")
+    with pytest.raises(UnsupportedVariant):
+        asseco.parse_statements(data)
+    with pytest.raises(UnsupportedVariant):
+        parse_any(data)

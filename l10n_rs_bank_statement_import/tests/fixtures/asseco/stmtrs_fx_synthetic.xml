@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SYNTHETIC fixture: the devizni (FX) statement example from the Office
+     Banking XML specification (docs/fx_ob_spec.txt, "Primer Xml izvoda u
+     devinom platnom prometu"), with the hyphens mangled by the PDF text
+     extraction restored.  Shares the <stmtrs> root with the domestic
+     variant but uses stmbal/closing/stmtno/dateasto — the parser must
+     refuse it instead of importing it with empty balances. -->
+<stmtrs>
+  <rstype>ibank.fps.stmtrs.statement</rstype>
+  <status>
+    <code>0</code>
+    <severity>INFO</severity>
+    <detail/>
+  </status>
+  <stmbal>
+    <balamt>4041.35</balamt>
+    <balamtlcl>349277.99</balamtlcl>
+    <dtasof/>
+  </stmbal>
+  <closing>
+    <balamt>7142.53</balamt>
+    <balamtlcl>619673.60</balamtlcl>
+  </closing>
+  <acctid>00-516-0000006.7</acctid>
+  <stmtno>2006007</stmtno>
+  <stmtyear>2006</stmtyear>
+  <curdef>EUR</curdef>
+  <branch/>
+  <dateasto>2006-01-20T00:00:00</dateasto>
+  <trnlist>
+    <stmttrn>
+      <trntype>ibank.fps.document.internalorder</trntype>
+      <fitid>03360210444004</fitid>
+      <trnamt>3101.18</trnamt>
+      <benefit>debit</benefit>
+      <dtposted>2006-01-20T07:45:46</dtposted>
+      <dtavail>2006-01-20T00:00:00</dtavail>
+      <reference/>
+      <description/>
+    </stmttrn>
+    <stmttrn>
+      <trntype>ibank.fps.document.internalorder</trntype>
+      <fitid>03360210444005</fitid>
+      <trnamt>3101.18</trnamt>
+      <benefit>credit</benefit>
+      <dtposted>2006-01-20T07:45:46</dtposted>
+      <dtavail>2006-01-20T00:00:00</dtavail>
+      <reference/>
+      <description/>
+    </stmttrn>
+  </trnlist>
+</stmtrs>

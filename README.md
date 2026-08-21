@@ -10,7 +10,7 @@ business banking runs on:
 | # | Format | Files | Banks (examples) | Status |
 |---|--------|-------|------------------|--------|
 | 1 | **Halcom Hal E-Bank** | fixed-width 280-char `.txt` + optional `*_cov.txt` recap (upload together as one ZIP); extended `#`-delimited variant ("prošireni") | OTP, UniCredit, NLB Komercijalna, AIK, … (any Hal E-Bank client) | RSD ✔ / FX pseudo-XML: planned |
-| 2 | **Asseco OfficeBanking / FX Client XML** | `<stmtrs>` statement and `<pmtnotification>` instant notification | Banca Intesa, Erste, Eurobank, … | RSD ✔ (statements + notifications) |
+| 2 | **Asseco OfficeBanking / FX Client XML** | `<stmtrs>` statement and `<pmtnotification>` instant notification | Banca Intesa, Erste, Eurobank, … | RSD ✔ (statements + notifications) / devizni (`ibank.fps.*`): planned |
 | 3 | **ROL XML** (Raiffeisen OnLine; OTP export-compatible) | `TransakcioniRacunPrivredaIzvod` (RSD), `RacunPrivredaIzvod` (FX) | Raiffeisen, OTP | RSD ✔ and FX (EUR, …) ✔ |
 
 The format is detected automatically — users just upload the file(s); the

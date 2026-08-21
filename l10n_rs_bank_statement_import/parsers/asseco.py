@@ -23,6 +23,7 @@ from .base import (
     Statement,
     StatementParseError,
     Transaction,
+    UnsupportedVariant,
     decode_bytes,
     dedupe_import_ids,
     line_hash,
@@ -32,6 +33,18 @@ from .base import (
 )
 
 ROOT_TAGS = ("stmtrs", "pmtnotification", "stmtrslist")
+
+#: Statements from the *devizni* (FX) payment system share the ``<stmtrs>``
+#: root with the domestic ones but carry a different child set: ``stmbal`` /
+#: ``closing`` instead of ``ledgerbal`` / ``availbal``, ``stmtno`` instead of
+#: ``stmtnumber``, ``dateasto`` instead of ``availbal/dtasof``, and no
+#: ``purpose`` / ``payeeinfo`` / ``payeeaccountinfo`` on the transactions
+#: (docs/fx_ob_spec.txt, "Struktura XML izvoda u deviznom platnom prometu").
+#: They are told apart only by ``rstype``: reading one with the domestic
+#: field names succeeds without error and silently yields a statement with
+#: no balances, no statement number and counterparty-less lines, so reject
+#: the variant explicitly instead — same treatment as Halcom FX.
+FX_TYPE_PREFIX = "ibank.fps."
 
 
 def looks_like_asseco(root: ET.Element) -> bool:
@@ -64,6 +77,12 @@ def parse_tree(root: ET.Element) -> list:
 
 
 def _parse_stmtrs(node: ET.Element) -> Statement:
+    doc_type = _text(node, "rstype") or _text(node, "notiftype")
+    if doc_type.lower().startswith(FX_TYPE_PREFIX):
+        raise UnsupportedVariant(
+            "Asseco devizni (FX) statements (%s) are not supported yet "
+            "— planned for a future release." % doc_type
+        )
     status_code = _text(node, "status/code")
     if status_code not in ("", "0"):
         raise StatementParseError(
