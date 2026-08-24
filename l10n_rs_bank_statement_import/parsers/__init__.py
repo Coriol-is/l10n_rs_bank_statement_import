@@ -18,7 +18,7 @@ import io
 import xml.etree.ElementTree as ET
 import zipfile
 
-from . import asseco, halcom, rol
+from . import alta_xls, asseco, halcom, rol
 from .base import (  # noqa: F401 - re-exported for the Odoo glue and tests
     Statement,
     StatementParseError,
@@ -40,6 +40,9 @@ def parse_any(data: bytes, filename: str = None) -> list:
 
 
 def _parse_single(data: bytes, cov_data: bytes = None, filename: str = None) -> list:
+    if alta_xls.looks_like_xls(data):
+        return [alta_xls.parse_statement(data)]
+
     try:
         text = decode_bytes(data)
     except StatementParseError as exc:

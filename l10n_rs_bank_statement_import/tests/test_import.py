@@ -93,6 +93,45 @@ class TestSerbianStatementImport(TransactionCase):
             sum(statement.line_ids.mapped("amount")), 37642.55, places=2
         )
 
+    def test_import_alta_xls(self):
+        import io
+
+        import xlwt
+
+        output = io.BytesIO()
+        workbook = xlwt.Workbook()
+        sheet = workbook.add_sheet("Sheet1")
+        sheet.write(2, 7, "IZVOD BROJ 42")
+        sheet.write(7, 1, "BROJ IZVODA        :\nStatement No.")
+        sheet.write(7, 3, "42")
+        sheet.write(7, 12, "Prethodno stanje        :\nPrevious Balance")
+        sheet.write(7, 21, "100.00")
+        sheet.write(9, 1, "BROJ RAČUNA    :\nAccount No.")
+        sheet.write(9, 3, "205000000010804045")
+        sheet.write(15, 1, "ZA PERIOD            :\nFor the period")
+        sheet.write(15, 3, "07.08.2026")
+        sheet.write(15, 12, "Novo stanje            :\nNew Balance")
+        sheet.write(15, 21, "75.00")
+        sheet.write(32, 1, "1\n07.08.2026\n07.08.2026")
+        sheet.write(32, 2, "87000119900001")
+        sheet.write(32, 5, "Plaćanje dobavljaču")
+        sheet.write(32, 9, "DOBAVLJAČ DOO\nBeograd\n160000000000000001")
+        sheet.write(32, 16, "221\n97-42")
+        sheet.write(32, 22, "25.00")
+        sheet.write(32, 26, "0,00")
+        workbook.save(output)
+
+        result = self._import(output.getvalue(), "alta-42.xls")
+        statement = self.env["account.bank.statement"].browse(
+            result["statement_ids"][0]
+        )
+        self.assertEqual(statement.name, "42")
+        self.assertEqual(len(statement.line_ids), 1)
+        self.assertEqual(statement.line_ids.amount, -25.0)
+        self.assertTrue(
+            statement.line_ids.unique_import_id.endswith("-87000119900001")
+        )
+
     def test_reimport_is_deduplicated(self):
         from odoo.exceptions import UserError
 

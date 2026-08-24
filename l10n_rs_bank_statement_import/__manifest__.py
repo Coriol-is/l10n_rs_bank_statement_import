@@ -2,10 +2,11 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
 {
     "name": "RS Bank Statement Import",
-    "summary": "Import Serbian bank statements: Halcom Hal E-Bank txt, "
+    "summary": "Import Serbian bank statements: Alta Banka XLS, "
+               "Halcom Hal E-Bank txt, "
                "Asseco OfficeBanking / FX Client XML, "
                "Raiffeisen OnLine (ROL) / OTP XML",
-    "version": "19.0.1.0.3",
+    "version": "19.0.1.1.0",
     "category": "Accounting",
     "license": "LGPL-3",
     # First entry is the store cover: the Apps grid and product page
@@ -19,6 +20,7 @@
     "website": "https://github.com/Coriol-is/l10n_rs_bank_statement_import",
     "support": "odoo@coriol.co",
     "depends": ["account_statement_import_file"],
+    "external_dependencies": {"python": ["xlrd"]},
     "data": [
         "security/ir.model.access.csv",
         "views/account_statement_import_view.xml",

@@ -22,6 +22,7 @@
         />
         <field name="arch" type="xml">
             <xpath expr="//ul[@id='statement_format']" position="inside">
+                <li>Alta Banka Business e-banking daily statement (.xls)</li>
                 <li>Halcom Hal E-Bank statement (.txt, also as a ZIP with the _cov recap)</li>
                 <li>Asseco OfficeBanking / FX Client statement (.xml)</li>
                 <li>Raiffeisen OnLine (ROL) / OTP statement (.xml)</li>
