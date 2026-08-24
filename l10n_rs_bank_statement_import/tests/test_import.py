@@ -120,3 +120,9 @@ class TestSerbianStatementImport(TransactionCase):
         data = (FIXTURES / "halcom" / "HalcomIZVOD.txt").read_bytes()
         self._import(data, "izvod.txt")
         self.assertEqual(self.journal.bank_statements_source, "file_import_oca")
+
+    def test_import_menu_is_available_under_invoicing(self):
+        menu = self.env.ref(
+            "account_statement_import_file.account_statement_import_menu"
+        )
+        self.assertEqual(menu.parent_id, self.env.ref("account.menu_finance"))
