@@ -172,3 +172,23 @@ class TestSerbianStatementImport(TransactionCase):
         self.assertIn(
             menu.id, self.env["ir.ui.menu"].with_user(admin)._visible_menu_ids()
         )
+
+    def test_bank_accounts_menu_is_available_to_invoicing_admin(self):
+        menu = self.env.ref(
+            "l10n_rs_bank_statement_import.menu_bank_accounts"
+        )
+        self.assertEqual(
+            menu.parent_id,
+            self.env.ref("l10n_rs_bank_statement_import.menu_bank"),
+        )
+        self.assertEqual(
+            menu.action,
+            self.env.ref("base.action_res_partner_bank_account_form"),
+        )
+        admin = self.env.ref("base.user_admin")
+        self.assertTrue(
+            self.env["res.partner.bank"].with_user(admin).has_access("create")
+        )
+        self.assertIn(
+            menu.id, self.env["ir.ui.menu"].with_user(admin)._visible_menu_ids()
+        )
