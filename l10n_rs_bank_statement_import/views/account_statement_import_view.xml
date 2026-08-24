@@ -30,6 +30,55 @@
         groups="account.group_account_manager"
     />
 
+    <record id="action_bank_move_resequence" model="ir.actions.act_window">
+        <field name="name">Resequence Bank Entries</field>
+        <field name="res_model">l10n.rs.bank.move.resequence</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_bank_move_resequence"
+        name="Resequence Entries"
+        parent="menu_bank"
+        action="action_bank_move_resequence"
+        sequence="20"
+        groups="account.group_account_manager"
+    />
+
+    <record id="bank_move_resequence_form" model="ir.ui.view">
+        <field name="name">l10n.rs.bank.move.resequence.form</field>
+        <field name="model">l10n.rs.bank.move.resequence</field>
+        <field name="arch" type="xml">
+            <form string="Resequence Bank Entries">
+                <group>
+                    <field name="journal_id" />
+                    <field name="year" />
+                </group>
+                <group string="Preview">
+                    <field name="preview_values" invisible="1" />
+                    <field name="preview" nolabel="1" readonly="1" />
+                </group>
+                <div class="alert alert-warning" role="alert">
+                    All numbered entries in the selected bank journal and year are included.
+                    Imported rows are ordered by date, statement number, and row position.
+                    Other entries are ordered by date and retain their relative order.
+                </div>
+                <footer>
+                    <button
+                        name="action_resequence"
+                        string="Resequence"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q"
+                        confirm="This changes the numbers of posted journal entries. Continue?"
+                    />
+                    <button string="Cancel" special="cancel" class="btn-secondary" data-hotkey="x" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <record id="account_statement_import_form" model="ir.ui.view">
         <field name="model">account.statement.import</field>
         <field
