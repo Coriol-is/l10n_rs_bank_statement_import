@@ -126,3 +126,10 @@ class TestSerbianStatementImport(TransactionCase):
             "account_statement_import_file.account_statement_import_menu"
         )
         self.assertEqual(menu.parent_id, self.env.ref("account.menu_finance"))
+        admin = self.env.ref("base.user_admin")
+        self.assertTrue(
+            self.env["account.statement.import"].with_user(admin).has_access("create")
+        )
+        self.assertIn(
+            menu.id, self.env["ir.ui.menu"].with_user(admin)._visible_menu_ids()
+        )

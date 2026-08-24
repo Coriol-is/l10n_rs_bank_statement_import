@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_statement_import_manager,RS statement import wizard for Invoicing administrators,account_statement_import_file.model_account_statement_import,account.group_account_manager,1,1,1,1
+access_account_bank_statement_manager,RS bank statements for Invoicing administrators,account.model_account_bank_statement,account.group_account_manager,1,1,1,1
+access_account_bank_statement_line_manager,RS bank statement lines for Invoicing administrators,account.model_account_bank_statement_line,account.group_account_manager,1,1,1,1

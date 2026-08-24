@@ -5,7 +5,7 @@
     "summary": "Import Serbian bank statements: Halcom Hal E-Bank txt, "
                "Asseco OfficeBanking / FX Client XML, "
                "Raiffeisen OnLine (ROL) / OTP XML",
-    "version": "19.0.1.0.2",
+    "version": "19.0.1.0.3",
     "category": "Accounting",
     "license": "LGPL-3",
     # First entry is the store cover: the Apps grid and product page
@@ -19,7 +19,10 @@
     "website": "https://github.com/Coriol-is/l10n_rs_bank_statement_import",
     "support": "odoo@coriol.co",
     "depends": ["account_statement_import_file"],
-    "data": ["views/account_statement_import_view.xml"],
+    "data": [
+        "security/ir.model.access.csv",
+        "views/account_statement_import_view.xml",
+    ],
     "installable": True,
     "application": False,
 }
