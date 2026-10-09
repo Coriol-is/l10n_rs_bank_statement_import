@@ -11,6 +11,7 @@ import unittest
 try:
     from odoo.tests import tagged
     from odoo.tests.common import TransactionCase
+    from odoo.tools.binary import BinaryBytes
 
     HAS_ODOO = True
 except ImportError:  # plain pytest without Odoo
@@ -23,7 +24,6 @@ except ImportError:  # plain pytest without Odoo
 
         return decorator
 
-import base64
 from pathlib import Path
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -39,7 +39,7 @@ class TestSerbianStatementImport(TransactionCase):
         cls.currency_rsd.active = True
         cls.partner_bank = cls.env["res.partner.bank"].create(
             {
-                "acc_number": "205-0000000108040-45",
+                "account_number": "205-0000000108040-45",
                 "partner_id": cls.env.company.partner_id.id,
             }
         )
@@ -59,7 +59,7 @@ class TestSerbianStatementImport(TransactionCase):
             .with_context(journal_id=self.journal.id)
             .create(
                 {
-                    "statement_file": base64.b64encode(data),
+                    "statement_file": BinaryBytes(data),
                     "statement_filename": filename,
                 }
             )
