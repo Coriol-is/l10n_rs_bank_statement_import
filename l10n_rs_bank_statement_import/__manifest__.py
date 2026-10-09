@@ -22,7 +22,7 @@
     "depends": ["account_statement_import_file"],
     "external_dependencies": {"python": ["xlrd"]},
     "data": [
-        "security/ir.model.access.csv",
+        "security/ir.access.csv",
         "views/account_statement_import_view.xml",
     ],
     "installable": True,

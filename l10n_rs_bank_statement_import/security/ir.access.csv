@@ -1,0 +1,5 @@
+id,name,model_id,group_id/id,operation,domain
+access_account_statement_import_manager,RS statement import wizard for Invoicing administrators,account.statement.import,account.group_account_manager,crud,
+access_account_bank_statement_manager,RS bank statements for Invoicing administrators,account.bank.statement,account.group_account_manager,crud,
+access_account_bank_statement_line_manager,RS bank statement lines for Invoicing administrators,account.bank.statement.line,account.group_account_manager,crud,
+access_l10n_rs_bank_move_resequence_manager,RS bank entry resequence wizard,l10n.rs.bank.move.resequence,account.group_account_manager,crud,
