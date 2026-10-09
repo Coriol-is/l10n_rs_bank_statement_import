@@ -6,7 +6,7 @@
                "Halcom Hal E-Bank txt, "
                "Asseco OfficeBanking / FX Client XML, "
                "Raiffeisen OnLine (ROL) / OTP XML",
-    "version": "19.0.1.2.0",
+    "version": "20.0.1.2.0",
     "category": "Accounting",
     "license": "LGPL-3",
     # First entry is the store cover: the Apps grid and product page
