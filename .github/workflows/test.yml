@@ -2,7 +2,7 @@ name: tests
 
 on:
   push:
-    branches: ["main", "19.0"]
+    branches: ["20.0", "fix/**", "feat/**"]
   pull_request:
 
 jobs:
@@ -18,10 +18,10 @@ jobs:
       - run: pytest -q l10n_rs_bank_statement_import/tests/test_halcom.py l10n_rs_bank_statement_import/tests/test_asseco.py l10n_rs_bank_statement_import/tests/test_rol.py
 
   odoo-tests:
-    name: Odoo 19 integration tests
+    name: Odoo 20 integration tests
     runs-on: ubuntu-latest
     container:
-      image: odoo:19
+      image: odoo:20.0
       options: --user root
     services:
       postgres:
@@ -38,15 +38,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install OCA dependencies
+        # account_statement_base: pending OCA/account-reconcile PR #1048 (kmee),
+        # pinned by sha. account_statement_import_base/_file: OCA has no 20.0
+        # branch yet, so the CI-only ports under ci/oca20/ are used (see
+        # ci/oca20/README.md).
         run: |
           apt-get update
           apt-get install -y --no-install-recommends git ca-certificates
-          git clone --depth 1 --branch 19.0 https://github.com/OCA/bank-statement-import.git /tmp/oca-bank
-          git clone --depth 1 --branch 19.0 https://github.com/OCA/account-reconcile.git /tmp/oca-reconcile
-          find /tmp/oca-bank -mindepth 1 -maxdepth 1 -type d -name 'account_*' \
-            -exec ln -s {} /mnt/extra-addons/ \;
-          find /tmp/oca-reconcile -mindepth 1 -maxdepth 1 -type d -name 'account_*' \
-            -exec ln -s {} /mnt/extra-addons/ \;
+          git clone --depth 1 --branch 20.0-mig-account_statement_base https://github.com/kmee/account-reconcile.git /tmp/oca-reconcile
+          git -C /tmp/oca-reconcile fetch --depth 1 origin 603ed6b15f9409baa915e5484ec59ea9921f8e85
+          git -C /tmp/oca-reconcile checkout 603ed6b15f9409baa915e5484ec59ea9921f8e85
+          ln -s /tmp/oca-reconcile/account_statement_base /mnt/extra-addons/account_statement_base
+          ln -s "$GITHUB_WORKSPACE/ci/oca20/account_statement_import_base" /mnt/extra-addons/account_statement_import_base
+          ln -s "$GITHUB_WORKSPACE/ci/oca20/account_statement_import_file" /mnt/extra-addons/account_statement_import_file
       - name: Run module tests
         run: |
           ln -s "$GITHUB_WORKSPACE/l10n_rs_bank_statement_import" /mnt/extra-addons/l10n_rs_bank_statement_import

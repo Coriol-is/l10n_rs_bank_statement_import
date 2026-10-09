@@ -47,7 +47,8 @@ Enterprise users install the OCA modules alongside; nothing conflicts.
    [OCA/bank-statement-import](https://github.com/OCA/bank-statement-import)
    (branch matching your Odoo version): `account_statement_import_base`,
    `account_statement_import_file` (they pull `account_statement_base`
-   from OCA/account-reconcile).
+   from OCA/account-reconcile). The 20.0 series needs the 20.0 port of OCA
+   `account_statement_import_file`, which OCA has not released yet.
 2. Copy `l10n_rs_bank_statement_import` into your addons path and install it.
 3. Make sure the bank journal's account number contains the digits of the
    account as it appears in the statement files (e.g.
