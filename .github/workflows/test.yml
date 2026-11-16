@@ -4,21 +4,31 @@ on:
   push:
     branches: ["main", "19.0"]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   parser-tests:
     name: Serbian statement parser tests
+    timeout-minutes: 20
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pytest
+      - run: python -m pip install -r requirements-ci.txt
       - run: pytest -q l10n_rs_bank_statement_import/tests/test_halcom.py l10n_rs_bank_statement_import/tests/test_asseco.py l10n_rs_bank_statement_import/tests/test_rol.py
 
   odoo-tests:
     name: Odoo 19 integration tests
+    timeout-minutes: 20
     runs-on: ubuntu-26.04
     container:
       image: odoo:19
@@ -48,9 +58,15 @@ jobs:
           find /tmp/oca-reconcile -mindepth 1 -maxdepth 1 -type d -name 'account_*' \
             -exec ln -s {} /mnt/extra-addons/ \;
       - name: Run module tests
+        shell: bash
         run: |
+          set -o pipefail
           ln -s "$GITHUB_WORKSPACE/l10n_rs_bank_statement_import" /mnt/extra-addons/l10n_rs_bank_statement_import
           odoo --db_host=postgres --db_user=odoo --db_password=odoo \
                -d bank_import_ci -i l10n_rs_bank_statement_import \
                --test-tags /l10n_rs_bank_statement_import \
-               --stop-after-init --log-level=test
+               --stop-after-init --log-level=test 2>&1 | tee /tmp/odoo-test.log
+      - name: Assert the suite actually ran and passed
+        shell: bash
+        run: |
+          grep -E "odoo\.tests\.result: 0 failed, 0 error\(s\) of [1-9][0-9]* tests" /tmp/odoo-test.log
